@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copiar package.json y package-lock.json
-COPY package*.json ./
+COPY ["package.json", "package-lock.json", "./"]
 
 # Instalar dependencias
 RUN npm install --production=false
