@@ -4,6 +4,9 @@ FROM node:20-alpine AS build
 # Establecer el directorio de trabajo
 WORKDIR /app
 
+# Instalar Node.js para ejecutar el servidor de desarrollo de React
+RUN apt-get update && apt-get install -y nodejs npm
+
 # Copiar package.json y package-lock.json
 COPY package.json package-lock.json ./
 
@@ -26,6 +29,6 @@ WORKDIR /app
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
-
+#
 # Comando para iniciar la aplicación
 CMD ["npm", "start"]
