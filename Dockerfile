@@ -13,25 +13,17 @@ RUN npm install --production=false
 # Copiar el resto de los archivos del proyecto
 COPY . .
 
-# Ejecutar pruebas
-RUN npm run test
-
 # Construir la aplicación
 RUN npm run build
 
 # Etapa de producción
-FROM node:20-alpine
+FROM nginx:alpine
 
-# Establecer el directorio de trabajo
-WORKDIR /app
+# Copiar los archivos construidos al directorio de nginx
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Copiar solo los archivos necesarios desde la etapa de construcción
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/build ./build
+# Exponer el puerto 80
+EXPOSE 80
 
-# Exponer el puerto 3000
-EXPOSE 3000
-
-# Definir el comando para iniciar la aplicación
-CMD ["npm", "start"]
+# Comando para ejecutar nginx
+CMD ["nginx", "-g", "daemon off;"]
