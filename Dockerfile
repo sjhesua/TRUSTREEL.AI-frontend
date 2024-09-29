@@ -11,8 +11,9 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code to the container
-COPY . .
+COPY . . 
 
+RUN npm run test 
 # Build the application and log output
 RUN npm run build --verbose
 
