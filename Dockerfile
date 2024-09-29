@@ -1,23 +1,23 @@
-# Usar una imagen base de Node.js
-FROM node:14
+# Use a base image of Node.js
+FROM node:20
 
-# Establecer el directorio de trabajo en el contenedor
+# Set the working directory in the container
 WORKDIR /app
 
-# Copiar los archivos package.json y package-lock.json al contenedor
+# Copy the package.json and package-lock.json files to the container
 COPY package*.json ./
 
-# Instalar las dependencias
+# Install dependencies
 RUN npm install
 
-# Copiar el resto del código de la aplicación al contenedor
+# Copy the rest of the application code to the container
 COPY . .
 
-# Construir la aplicación
+# Build the application
 RUN npm run build
 
-# Exponer el puerto 3000
+# Expose port 3000
 EXPOSE 3000
 
-# Definir el comando para iniciar la aplicación
+# Define the command to start the application
 CMD ["npm", "start"]
