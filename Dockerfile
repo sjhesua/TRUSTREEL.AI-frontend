@@ -1,24 +1,37 @@
-# Use a base image of Node.js
-FROM node:20.15.1
+# Etapa de construcción
+FROM node:20-alpine AS build
 
-# Set the working directory in the container
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the container
+# Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Instalar dependencias
+RUN npm install --production=false
 
-# Copy the rest of the application code to the container
-COPY . . 
+# Copiar el resto de los archivos del proyecto
+COPY . .
 
-RUN npm run test 
-# Build the application and log output
-RUN npm run build --verbose
+# Ejecutar pruebas
+RUN npm run test
 
-# Expose port 3000
+# Construir la aplicación
+RUN npm run build
+
+# Etapa de producción
+FROM node:20-alpine
+
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar solo los archivos necesarios desde la etapa de construcción
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/build ./build
+
+# Exponer el puerto 3000
 EXPOSE 3000
 
-# Define the command to start the application
+# Definir el comando para iniciar la aplicación
 CMD ["npm", "start"]
