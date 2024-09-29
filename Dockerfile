@@ -5,10 +5,10 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copiar package.json y package-lock.json
-COPY ["package.json", "package-lock.json", "./"]
+COPY package.json package-lock.json ./
 
-# Instalar dependencias
-RUN npm install --production=false
+# Instalar todas las dependencias
+RUN npm install
 
 # Copiar el resto de los archivos del proyecto
 COPY . .
@@ -17,13 +17,15 @@ COPY . .
 RUN npm run build
 
 # Etapa de producción
-FROM nginx:alpine
+FROM node:20-alpine
 
-# Copiar los archivos construidos al directorio de nginx
-COPY --from=build /app/build /usr/share/nginx/html
+# Establecer el directorio de trabajo
+WORKDIR /app
 
-# Exponer el puerto 80
-EXPOSE 80
+# Copiar solo los archivos necesarios desde la etapa de construcción
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/build ./build
 
-# Comando para ejecutar nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Comando para iniciar la aplicación
+CMD ["npm", "start"]
