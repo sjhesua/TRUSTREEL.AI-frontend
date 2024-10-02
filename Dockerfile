@@ -23,7 +23,9 @@ FROM node:20-alpine
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
-# Copiar solo los archivos necesarios desde la etapa de construcción
+# Copiar el archivo de configuración de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
