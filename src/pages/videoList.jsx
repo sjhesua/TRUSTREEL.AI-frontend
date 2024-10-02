@@ -22,7 +22,7 @@ const VideoList = () => {
     }, []);
 
     return (
-        <div className='sm:ml-2 md:ml-60'>
+        <div className='ml-20 sm:ml-60 md:ml-60'>
             <Sidebar />
             <div className="container mx-auto p-4">
                 <table className="overflow-x-auto w-full">

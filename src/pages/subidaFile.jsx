@@ -97,8 +97,9 @@ const UploadExcel = () => {
 
 
     return (
-        <div className="ml-20">
+        <div className="ml-20 sm:ml-60 md:ml-60">
             <Sidebar />
+
             <div className='flex flex-col md:flex-row items-center justify-around p-4 space-y-4 md:space-y-0 md:space-x-4'>
                 <h2 className="text-2xl font-bold mb-6 mt-6 text-center md:text-left">Upload Excel File</h2>
 
@@ -133,8 +134,8 @@ const UploadExcel = () => {
                         </div>
                         <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
                             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div className="sm:flex sm:items-start">
-                                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <div className="">
+                                    <div className="mt-3 text-center">
                                         <h3 className="text-lg leading-6 font-medium text-gray-900">
                                             Add Client
                                         </h3>

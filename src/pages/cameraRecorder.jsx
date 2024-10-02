@@ -28,12 +28,22 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording }, ref) => {
 
     const handleStartRecording = () => {
         setRecording(true);
-        mediaRecorderRef.current.start();
+        try{
+            mediaRecorderRef.current.start();
+        }
+        catch(err){
+            window.location.reload();
+        }
     };
 
     const handleStopRecording = () => {
         setRecording(false);
-        mediaRecorderRef.current.stop();
+        try{
+            mediaRecorderRef.current.stop();
+        }
+        catch(err){
+            window.location.reload();
+        }
     };
 
     useImperativeHandle(ref, () => ({

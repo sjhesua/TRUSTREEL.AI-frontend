@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const CreateVideoGenerationQueue = ({ replicaCode }) => {
@@ -113,8 +114,10 @@ const CreateVideoGenerationQueue = ({ replicaCode }) => {
 
             {response && (
                 <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                    <h3 className="text-lg font-semibold">Response:</h3>
-                    <pre>{JSON.stringify(response, null, 2)}</pre>
+                    <h3 className="text-lg font-semibold">Video created successfully!</h3>
+                    <Link to={`/dashboard/videolist`} className="text-blue-500 hover:underline">
+                        Video list
+                    </Link>
                 </div>
             )}
             {error && (

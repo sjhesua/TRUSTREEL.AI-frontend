@@ -38,7 +38,8 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <>
+   {/* <div className="min-h-screen flex">
       <div className="w-full md:w-1/2 flex items-center justify-center">
         <div className="w-3/4 max-w-md">
           <div className="grid gap-2 text-center">
@@ -104,9 +105,10 @@ const SignUpForm = () => {
         </div>
       </div>
       <div className="hidden md:block md:w-1/2 bg-cover bg-center" style={{ backgroundImage: "url('https://tu-imagen.com/image.jpg')" }}>
-        {/* Imagen a la derecha solo en pantallas medianas en adelante */}
       </div>
     </div>
+    */}
+    </>
   );
 };
 

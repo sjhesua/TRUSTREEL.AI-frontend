@@ -121,7 +121,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
 
     return (
         <>
-            <canvas ref={canvasRef} width="50" height="50" style={{borderRadius: '50%'}} className='border border-4 border-[#f230aa] cursor-pointer' onClick={toggleMic} />
+            <canvas ref={canvasRef} className='absolute w-40 h-10 rounded-full' onClick={toggleMic} />
         </>
     );
 });
