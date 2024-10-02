@@ -136,22 +136,24 @@ const VideoPlayer = ({ videos }) => {
             </div>
             {/*Esto se muestra despues que el boto desaparece*/}
             <div className={`grid grid-cols-1 md:grid-cols-2 h-screen w-screen ${showInitialButton ? 'hidden' : ''}`}>
-                {videos.map((video, index) => (
-                    <video
-                        key={index}
-                        ref={(el) => (videoRefs.current[index] = el)}
-                        src={video.url}
-                        onEnded={() => {
-                            handleVideoEnd();
-                            videoRefs.current[index].classList.add('blur-sm');
-                        }}
-                        onPlay={() => {
-                            videoRefs.current[index].classList.remove('blur-sm');
-                        }}
-                        className={`w-full h-full max-h-full object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
-                    />
-                ))}
-
+                <div className="relative overflow-hidden w-full h-full">
+                    {videos.map((video, index) => (
+                        <video
+                            key={index}
+                            ref={(el) => (videoRefs.current[index] = el)}
+                            src={video.url}
+                            onEnded={() => {
+                                handleVideoEnd();
+                                videoRefs.current[index].classList.add('blur-sm');
+                            }}
+                            onPlay={() => {
+                                videoRefs.current[index].classList.remove('blur-sm');
+                            }}
+                            className={`absolute top-1/2 left-1/2 w-[200%] h-[200%] max-w-none max-h-none object-cover transform -translate-x-1/2 -translate-y-1/2 ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
+                            style={{ transform: 'translate(-50%, -30%)',minHeight:'50vh' }}
+                        />
+                    ))}
+                </div>
                 <div className="flex flex-col">
 
                     <CameraRecorder ref={cameraRecorderRef} />
