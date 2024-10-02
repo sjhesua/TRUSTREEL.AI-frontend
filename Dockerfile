@@ -19,14 +19,15 @@ RUN npm run build
 # Etapa de producción
 FROM node:20-alpine
 
-# Establecer el directorio de trabajo
-WORKDIR /app
+# Etapa de producción
+FROM nginx:alpine
 
+COPY --from=build /app/build /usr/share/nginx/html
 # Copiar solo los archivos necesarios desde la etapa de construcción
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
 COPY --from=build /app/public ./public
 
-# Comando para iniciar la aplicación
-CMD ["npm", "start"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
