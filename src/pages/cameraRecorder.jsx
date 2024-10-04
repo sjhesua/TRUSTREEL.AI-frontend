@@ -9,7 +9,15 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording }, ref) => {
     useEffect(() => {
         const startCamera = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    frameRate: { ideal: 60 }
+                },
+                    audio: true 
+                });
+                
                 videoRef.current.srcObject = stream;
                 mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8,opus' });
 
@@ -66,7 +74,7 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording }, ref) => {
     }, [recording, recordedChunks]);
 
     return (
-        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full max-h-full object-cover block" />
+        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full max-h-full object-cover block z-10" />
     );
 });
 

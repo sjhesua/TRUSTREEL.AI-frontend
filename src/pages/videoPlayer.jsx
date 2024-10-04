@@ -95,45 +95,87 @@ const VideoPlayer = ({ videos }) => {
         }
     }, [silentSeconds, allVideosPlayed]);
 
-    const [isLoading, setIsLoading] = useState(true);
+   
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 3000);
-
-        return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta
-    }, []);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(allVideosPlayed && !isPlaying)
-        {
-            if (silentSeconds >= 5) {
+        if (allVideosPlayed && !isPlaying) {
+            /*if (silentSeconds >= 5) {
                 window.location.href = '/';
-            }
+            }*/
         }
-    }, [allVideosPlayed,isPlaying,silentSeconds]);
+    }, [allVideosPlayed, isPlaying, silentSeconds]);
+
+    const [isChecked, setIsChecked] = useState(false);
+
 
     return (
         <div className="h-screen w-screen">
+            <p className="inline-block absolute top-2 left-2 text-2xl font-bold text-white p-2">TrustReel</p>
             {/*Este boto lo usamos para inicar todo, la grabacion y el waveform*/}
-            <div className={`flex flex-col items-center justify-center h-full w-full ${showInitialButton ? '' : 'hidden'}`}>
-                <p className='p-10'>
-                    Gracias por tu interés en dar feedback sobre la charla que dio Gonzalo Arzuaga en tu grupo Vistage. Te voy a hacer 3 preguntas cortitas acerca de como fue tu experiencia para compartir con otros coordinadores que estén buscando un expositor para sus grupos.
-                    Ah… cuando hagas una pausa en tu respuesta yo lo tomare como que terminaste, y acto seguido te hare la siguiente pregunta. Cuando estas listo, apreta el boton y empezamos!
-                </p>
-                {isLoading ? (
-                    <p>Cargando...</p>
-                ) : (
-                    <button
-                        onClick={handleInitialButtonClick}
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                    >
-                        Iniciar
-                    </button>
-                )}
-            </div>
+           
+                <div className={`flex flex-wrap h-screen absolute ${showInitialButton ? '' : 'hidden'}`}>
+                    <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20">
+                        <div className='flex flex-col items-center justify-center h-full'>
+                            <p className='p-10 text-white'>
+                                Gracias por tu interés en dar feedback sobre la charla que dio Gonzalo Arzuaga en tu grupo Vistage. Te voy a hacer 3 preguntas cortitas acerca de como fue tu experiencia para compartir con otros coordinadores que estén buscando un expositor para sus grupos.
+                                Ah…
+                            </p>
+                        </div>
+                    </div>
+                    <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20">
+                        <div className='flex flex-col items-center justify-center h-full'>
+                            <div className="relative transform rounded-lg text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95">
+                                <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                                    <div className="sm:flex sm:items-start">
+                                        {/*
+                                        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                            p
+                                        </div>
+                                        */}
+                                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                                            <h3 as="h3" className="text-base font-semibold leading-6 text-white ">
+                                                How it Works
+                                            </h3>
+                                            <div className="mt-2">
+                                                <p className="text-sm text-white">
+                                                    Our human avatar will ask you a few short questions about our service and how satisfied you're.
+                                                </p>
+                                                <p className="text-sm text-white">
+                                                    After you accept our terms, just click the Start Recording button.
+                                                </p>
+                                                <div class="flex items-center mb-4 pt-2">
+                                                    <input
+                                                        id="default-checkbox"
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={(e) => setIsChecked(e.target.checked)}
+                                                        class="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                    <label for="default-checkbox" class="ms-2 text-sm font-medium text-white select-none">
+                                                        Accept Terms and Conditions. Basically we can use the recording in social networks, emails, etc. <a href='#' className='text-[#f230aa] font-bold'> Link to T&C</a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="px-4 py-3 flex flex-col sm:px-6">
+                                    <button
+                                        type="button"
+                                        className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
+                                            }`}
+                                        disabled={!isChecked}
+                                        onClick={handleInitialButtonClick}
+                                    >
+                                        Let's Go
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             {/*Esto se muestra despues que el boto desaparece*/}
             <div className={`grid grid-cols-1 md:grid-cols-2 h-screen w-screen ${showInitialButton ? 'hidden' : ''}`}>
                 <div className="relative overflow-hidden w-full h-full">
@@ -149,8 +191,11 @@ const VideoPlayer = ({ videos }) => {
                             onPlay={() => {
                                 videoRefs.current[index].classList.remove('blur-sm');
                             }}
-                            className={`absolute top-1/2 left-1/2 w-[200%] h-[200%] max-w-none max-h-none object-cover transform -translate-x-1/2 -translate-y-1/2 ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
-                            style={{ transform: 'translate(-50%, -30%)',minHeight:'50vh' }}
+                            className={`absolute w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
+                            style={{ ...video.style }}
+                            onLoadedMetadata={() => {
+                                console.log(video.style);
+                            }}
                         />
                     ))}
                 </div>
@@ -158,7 +203,7 @@ const VideoPlayer = ({ videos }) => {
 
                     <CameraRecorder ref={cameraRecorderRef} />
 
-                    <div className='flex absolute items-center bottom-5 right-5'>
+                    <div className='flex absolute items-center bottom-5 right-5 z-20'>
                         <div>
                             <button
                                 className={`mr-2 ${isMicrophoneActive ? 'bg-gray-600 hover:bg-gray-600 h-10 w-10' : 'bg-[#f230aa] hover:bg-[#f46bbd] w-10 h-10'} text-white p-3 shadow-lg rounded-full flex items-center justify-center`}

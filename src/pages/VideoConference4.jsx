@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import VideoPlayer from './videoPlayer';
+import 'animate.css';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -17,7 +18,7 @@ const VideoApp = () => {
             setPath(extractedPath);
         }
     }, [location]);
-    
+
     useEffect(() => {
         const requestPermissions = async () => {
             try {
@@ -35,7 +36,6 @@ const VideoApp = () => {
     const [data, setData] = useState([]);
     const [videoName, setVideoName] = useState('');
     const [items, setItems] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -52,20 +52,41 @@ const VideoApp = () => {
                 console.log(data[0].items);
             } catch (error) {
                 setError(error);
-            } finally {
-                setLoading(false);
             }
         };
         fetchVideoQueues();
     }, [path]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 3000);
+
+        return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta
+    }, []);
 
     return (
-        <div>
-            <VideoPlayer videos={items} />
+        <div className="bgx2">
+            <div class="gradient-wrapper2"></div>
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-screen">
+                    <p className="text-4xl font-bold text-white animate__animated animate__fadeInUp">
+                        TrustReel
+                    </p>
+                    <p className="text-2xl text-white animate__animated animate__fadeInUp">
+                        TrustReel Video Testimonial
+                    </p>
+                    <div className="w-full max-w-md mt-4">
+                        <div className="h-2 bg-gray-300 rounded-full overflow-hidden">
+                            <div className="h-full bg-red-600 animate-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <VideoPlayer videos={items} />
+            )}
         </div>
     );
 };
