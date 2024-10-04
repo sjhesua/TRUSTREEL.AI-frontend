@@ -4,7 +4,7 @@ import CameraRecorder from './cameraRecorder';
 import { AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
 
-const VideoPlayer = ({ videos }) => {
+const VideoPlayer = ({ videos, videoId }) => {
     const [showInitialButton, setShowInitialButton] = useState(true);
 
 
@@ -201,7 +201,7 @@ const VideoPlayer = ({ videos }) => {
                 </div>
                 <div className="flex flex-col">
 
-                    <CameraRecorder ref={cameraRecorderRef} />
+                    <CameraRecorder ref={cameraRecorderRef} videoId={videoId} />
 
                     <div className='flex absolute items-center bottom-5 right-5 z-20'>
                         <div>

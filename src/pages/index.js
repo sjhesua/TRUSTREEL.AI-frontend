@@ -10,3 +10,4 @@ export {default as UploadExcel} from './subidaFile.jsx';
 export {default as LoginForm} from './LoginForm.jsx';
 export {default as SignUpForm} from './signUpForm.jsx';
 export {default as VideoList} from './videoList.jsx';
+export {default as Respuestas} from './respuestas.jsx';

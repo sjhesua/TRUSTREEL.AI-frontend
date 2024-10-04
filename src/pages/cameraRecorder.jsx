@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-const CameraRecorder = forwardRef(({ StartRecording, StopRecording }, ref) => {
+const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, ref) => {
     const videoRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const [recording, setRecording] = useState(false);
@@ -60,16 +61,39 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording }, ref) => {
     }));
 
     useEffect(() => {
+        const uploadVideo = async (blob) => {
+            const formData = new FormData();
+
+            // Generar la fecha y hora actual
+            const now = new Date();
+            const formattedDate = now.toISOString().replace(/[:.]/g, '-'); // Formatear la fecha y hora
+    
+            // Usar la fecha y hora formateada como el nombre del archivo
+            const fileName = `recording-${formattedDate}.webm`;
+
+            formData.append('video', blob, fileName); // Cambia 'recording.webm' por el nombre que desees
+            formData.append('videogenerationqueue_id', videoId); // Reemplaza '12345' con el ID real
+    
+            try {
+                const response = await fetch(`${backendUrl}/videos/upload-video/`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to upload video');
+                }
+    
+                const result = await response.json();
+                console.log('Video uploaded successfully:', result);
+            } catch (error) {
+                console.error('Error uploading video:', error);
+            }
+        };
+    
         if (!recording && recordedChunks.length > 0) {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'recording.mp4';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
+            uploadVideo(blob);
         }
     }, [recording, recordedChunks]);
 

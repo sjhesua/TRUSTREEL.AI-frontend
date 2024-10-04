@@ -37,6 +37,7 @@ const VideoApp = () => {
     const [videoName, setVideoName] = useState('');
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
+    const [videoId, setVideoId] = useState(null);
 
     useEffect(() => {
         const fetchVideoQueues = async () => {
@@ -49,6 +50,7 @@ const VideoApp = () => {
                 setData(data);
                 setVideoName(data[0].videoName);
                 setItems(data[0].items);
+                setVideoId(data[0].id);
                 console.log(data[0].items);
             } catch (error) {
                 setError(error);
@@ -85,7 +87,7 @@ const VideoApp = () => {
                     </div>
                 </div>
             ) : (
-                <VideoPlayer videos={items} />
+                <VideoPlayer videos={items} videoId={videoId} />
             )}
         </div>
     );

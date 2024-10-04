@@ -1,5 +1,6 @@
 // VideoModal.js
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 //const backendUrl = process.env.REACT_APP_BACKEND_URL
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL
 /*const replacePort = (url, oldPort, newPort) => {
@@ -40,7 +41,10 @@ const VideoModal = ({ video, onClose,customeUrl,videoName, data }) => {
                         </div>
                     ))}
                 </div>
-                <button onClick={onClose} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Close</button>
+                <div className='flex justify-center space-x-4'>
+                    <button onClick={onClose} className="mt-4 my-4 bg-blue-500 text-white px-4 py-4 rounded">Close</button>
+                    <Link to={`/dashboard/respuestas/${video.id}`} className="mt-4 my-4 bg-blue-500 text-white px-4 py-4 rounded">Ver Respuestas{video.id}</Link>
+                </div>
             </div>
         </div>
     );
