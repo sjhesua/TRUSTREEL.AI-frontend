@@ -1,4 +1,6 @@
 import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { ClipLoader } from 'react-spinners'; // Importar el spinner
+
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, ref) => {
@@ -59,9 +61,12 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
         startRecording: handleStartRecording,
         stopRecording: handleStopRecording,
     }));
+    
+    const [isUploading, setIsUploading] = useState(false); // Estado para controlar el spinner
 
     useEffect(() => {
         const uploadVideo = async (blob) => {
+            setIsUploading(true); 
             const formData = new FormData();
 
             // Generar la fecha y hora actual
@@ -88,6 +93,8 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
                 console.log('Video uploaded successfully:', result);
             } catch (error) {
                 console.error('Error uploading video:', error);
+            } finally {
+                setIsUploading(false); // Ocultar el spinner y el mensaje
             }
         };
     
@@ -98,7 +105,15 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
     }, [recording, recordedChunks]);
 
     return (
+        <>
+        {isUploading && (
+            <div className="uploading-message">
+                <ClipLoader size={50} color={"#123abc"} loading={isUploading} />
+                <p>Subiendo respuesta al servidor, por favor espere...</p>
+            </div>
+        )}
         <video ref={videoRef} autoPlay playsInline muted className="w-full h-full max-h-full object-cover block z-10" />
+        </>
     );
 });
 
