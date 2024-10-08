@@ -135,12 +135,13 @@ const VideoPlayer = ({ videos, videoId }) => {
     useEffect(() => {
         const getDevices = async () => {
             try {
+                //optener todos los dispositivos
                 const devices = await navigator.mediaDevices.enumerateDevices();
+                //optener solo los que sean de video
                 const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                //estado con solo los dispositivos de video
                 setDevices(videoDevices);
-                if (videoDevices.length > 0) {
-                    setSelectedDeviceId(videoDevices[0].deviceId);
-                }
+
             } catch (err) {
                 console.error("Error enumerating devices: ", err);
             }
@@ -149,94 +150,56 @@ const VideoPlayer = ({ videos, videoId }) => {
         getDevices();
     }, []);
 
+    useEffect(() => {
+        if (devices.length > 0) {
+            setSelectedDeviceId(devices[0].deviceId);
+        }
+    }, [devices]);
+
     const toggleCamera = async () => {
-        if (isCameraOn) {
-            // Detener la transmisión de la cámara y quitar los permisos
-            if (videoRef.current && videoRef.current.srcObject) {
-                let stream = videoRef.current.srcObject;
-                let tracks = stream.getTracks();
-        
-                tracks.forEach(track => track.stop());
-                videoRef.current.srcObject = null;
+    if (isCameraOn) {
+        // Detener la transmisión de la cámara y quitar los permisos
+        if (videoRef.current && videoRef.current.srcObject) {
+            let stream = videoRef.current.srcObject;
+            let tracks = stream.getTracks();
+    
+            tracks.forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+    } else {
+        try {
+            // Solicitar permisos para la cámara
+            const constraints = {
+                video: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    frameRate: { ideal: 60 },
+                    deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+                },
+                audio: true 
+            };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            setStreamVideo(stream);
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
             }
-        } else {
-            try {
-                // Solicitar permisos para la cámara
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: {
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        frameRate: { ideal: 60 }
-                    },
-                    audio: true 
-                });
-                setStreamVideo(stream);
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
-            } catch (err) {
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
-                } else {
-                    console.error("Error al acceder a la cámara: ", err);
-                    alert("Error al acceder a la cámara: " + err.message);
-                }
+        } catch (err) {
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
+            } else {
+                console.error("Error al acceder a la cámara: ", err);
+                alert("Error al acceder a la cámara: " + err.message);
             }
         }
-        setIsCameraOn(!isCameraOn);
-    };
+    }
+    setIsCameraOn(!isCameraOn);
+};
 
     return (
         <div className="h-screen w-screen overflow-y">
 
             <p className="inline-block absolute top-2 left-2 text-2xl font-bold text-white p-2">TrustReel</p>
             {/* */}
-
-            <div className={`flex flex-wrap h-screen absolute w-full ${joined ? '' : 'hidden'}`}>
-                <div className="w-full md:p-10 flex flex-col items-center justify-center">
-                    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                        <div class="bg-white p-2 flex items-center justify-around">
-                            <p>Are you ready to join?</p>
-                            <button disabled={!isCameraOn} onClick={handleInitialButtonClick} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
-                                }`}>
-                                Join
-                            </button>
-                        </div>
-                        <div class="bg-gray-500 p-2">
-                            <video ref={videoRef} className="fixed-size-video" width="100%" autoPlay>
-                                Tu navegador no soporta la etiqueta de video.
-                            </video>
-                        </div>
-                        <div class="bg-white p-2 sm:p-6 flex items-center ">
-                            <button onClick={toggleCamera} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
-                                {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera className="" />}
-                            </button>
-                            <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
-                                {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
-                            </button>
-                        </div>
-                        <div class="bg-white p-2 flex items-center justify-around">
-
-                            <label htmlFor="cameraSelect" className="block mb-2">Selecciona una cámara:</label>
-                            <select
-                                id="cameraSelect"
-                                value={selectedDeviceId}
-                                onChange={(e) => setSelectedDeviceId(e.target.value)}
-                                className="p-2 border rounded"
-                            >
-                                {devices.map(device => (
-                                    <option key={device.deviceId} value={device.deviceId}>
-                                        {device.label || `Cámara ${device.deviceId}`}
-                                    </option>
-                                ))}
-                            </select>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
             <div className={`flex flex-wrap h-screen absolute ${showInitialButton && !joined ? '' : 'hidden'}`}>
                 <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20">
                     <div className='flex flex-col items-center justify-center h-full'>
@@ -290,6 +253,51 @@ const VideoPlayer = ({ videos, videoId }) => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            {/**/}
+            <div className={`flex flex-wrap h-screen absolute w-full ${joined ? '' : 'hidden'}`}>
+                <div className="w-full md:p-10 flex flex-col items-center justify-center">
+                    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                        <div class="bg-white p-2 flex items-center justify-around">
+                            <p>Are you ready to join?</p>
+                            <button disabled={!isCameraOn} onClick={handleInitialButtonClick} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
+                                }`}>
+                                Join
+                            </button>
+                        </div>
+                        <div class="bg-gray-500 p-2">
+                            <video ref={videoRef} className="fixed-size-video" width="100%" autoPlay>
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+                        </div>
+                        <div class="bg-white p-2 sm:p-6 flex items-center ">
+                            <button onClick={toggleCamera} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera className="" />}
+                            </button>
+                            <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
+                            </button>
+                        </div>
+                        <div class="bg-white p-2 flex items-center justify-around">
+
+                            <label htmlFor="cameraSelect" className="block mb-2">Selecciona una cámara:</label>
+                            <select
+                                id="cameraSelect"
+                                value={selectedDeviceId}
+                                onChange={(e) => setSelectedDeviceId(e.target.value)}
+                                className="p-2 border rounded"
+                            >
+                                {devices.map(device => (
+                                    <option key={device.deviceId} value={device.deviceId}>
+                                        {device.label || `Cámara ${device.deviceId}`}
+                                    </option>
+                                ))}
+                            </select>
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
