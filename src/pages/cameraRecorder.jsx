@@ -12,6 +12,7 @@ const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log("El dispositivo es:",selectedDeviceId);
         const startCamera = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
