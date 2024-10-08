@@ -146,8 +146,11 @@ const VideoPlayer = ({ videos, videoId }) => {
                 console.error("Error enumerating devices: ", err);
             }
         };
-
+        navigator.mediaDevices.addEventListener('devicechange', getDevices);
         getDevices();
+        return () => {
+            navigator.mediaDevices.removeEventListener('devicechange', getDevices);
+        };
     }, []);
 
     useEffect(() => {
