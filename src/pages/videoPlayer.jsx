@@ -157,43 +157,42 @@ const VideoPlayer = ({ videos, videoId }) => {
     }, [devices]);
 
     const toggleCamera = async () => {
-    if (isCameraOn) {
-        // Detener la transmisión de la cámara y quitar los permisos
-        if (videoRef.current && videoRef.current.srcObject) {
-            let stream = videoRef.current.srcObject;
-            let tracks = stream.getTracks();
-    
-            tracks.forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-        }
-    } else {
-        try {
-            // Solicitar permisos para la cámara
-            const constraints = {
-                video: {
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    frameRate: { ideal: 60 },
-                    deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
-                },
-                audio: true 
-            };
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            setStreamVideo(stream);
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+        if (isCameraOn) {
+            // Detener la transmisión de la cámara y quitar los permisos
+            if (videoRef.current && videoRef.current.srcObject) {
+                let stream = videoRef.current.srcObject;
+                let tracks = stream.getTracks();
+
+                tracks.forEach(track => track.stop());
+                videoRef.current.srcObject = null;
             }
-        } catch (err) {
-            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
-            } else {
-                console.error("Error al acceder a la cámara: ", err);
-                alert("Error al acceder a la cámara: " + err.message);
+        } else {
+            try {
+                // Solicitar permisos para la cámara
+                const constraints = {
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60 },
+                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                setStreamVideo(stream);
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                }
+            } catch (err) {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
+                } else {
+                    console.error("Error al acceder a la cámara: ", err);
+                    alert("Error al acceder a la cámara: " + err.message);
+                }
             }
         }
-    }
-    setIsCameraOn(!isCameraOn);
-};
+        setIsCameraOn(!isCameraOn);
+    };
 
     return (
         <div className="h-screen w-screen overflow-y">
@@ -302,73 +301,73 @@ const VideoPlayer = ({ videos, videoId }) => {
             </div>
 
             {/*Esto se muestra despues que el boto desaparece*/}
-            
-                <div className={`grid grid-cols-1 md:grid-cols-2 h-screen w-screen ${!showInitialButton ? '':'hidden'} `}>
-                    <div className="relative overflow-hidden w-full h-full">
-                        {videos.map((video, index) => (
-                            <video
-                                key={index}
-                                ref={(el) => (videoRefs.current[index] = el)}
-                                src={video.url}
-                                onEnded={() => {
-                                    handleVideoEnd();
-                                    videoRefs.current[index].classList.add('blur-sm');
-                                }}
-                                onPlay={() => {
-                                    videoRefs.current[index].classList.remove('blur-sm');
-                                }}
-                                className={`absolute w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
-                                style={{ ...video.style, transform: 'translate(-14%, 0%)' }}
-                                onLoadedMetadata={() => {
-                                    console.log(video);
-                                }}
+
+            <div className={`grid grid-cols-1 md:grid-cols-2 h-screen w-screen ${!showInitialButton ? '' : 'hidden'} `}>
+                <div className="relative overflow-hidden w-full h-full">
+                    {videos.map((video, index) => (
+                        <video
+                            key={index}
+                            ref={(el) => (videoRefs.current[index] = el)}
+                            src={video.url}
+                            onEnded={() => {
+                                handleVideoEnd();
+                                videoRefs.current[index].classList.add('blur-sm');
+                            }}
+                            onPlay={() => {
+                                videoRefs.current[index].classList.remove('blur-sm');
+                            }}
+                            className={`absolute w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
+                            style={{ ...video.style, transform: 'translate(-14%, 0%)' }}
+                            onLoadedMetadata={() => {
+                                console.log(video);
+                            }}
+                        />
+                    ))}
+                </div>
+                <div className="flex flex-col">
+
+                    <CameraRecorder selectedDeviceId={selectedDeviceId} ref={cameraRecorderRef} videoId={videoId} />
+
+                    <div className='flex absolute items-center bottom-5 right-5 z-20'>
+                        <div>
+                            <button
+                                className={`mr-2 ${isMicrophoneActive ? 'bg-gray-600 hover:bg-gray-600 h-10 w-10' : 'bg-[#f230aa] hover:bg-[#f46bbd] w-10 h-10'} text-white p-3 shadow-lg rounded-full flex items-center justify-center`}
+                                onClick={toggleMicrophone}
+                            >
+                                {isMicrophoneActive ? (
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                        <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                ) : (
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                        <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                        <div>
+                            <Waveform
+                                ref={waveformRef}
+                                isSpeaking={isSpeaking}
+                                setIsSpeaking={setIsSpeaking}
+                                silentSeconds={silentSeconds}
+                                setSilentSeconds={setSilentSeconds}
+                                audioStarted={audioStarted}
+                                setAudioStarted={setAudioStarted}
                             />
-                        ))}
-                    </div>
-                    <div className="flex flex-col">
 
-                        <CameraRecorder selectedDeviceId={selectedDeviceId} ref={cameraRecorderRef} videoId={videoId} />
-
-                        <div className='flex absolute items-center bottom-5 right-5 z-20'>
-                            <div>
-                                <button
-                                    className={`mr-2 ${isMicrophoneActive ? 'bg-gray-600 hover:bg-gray-600 h-10 w-10' : 'bg-[#f230aa] hover:bg-[#f46bbd] w-10 h-10'} text-white p-3 shadow-lg rounded-full flex items-center justify-center`}
-                                    onClick={toggleMicrophone}
-                                >
-                                    {isMicrophoneActive ? (
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        </svg>
-                                    ) : (
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
-                            <div>
-                                <Waveform
-                                    ref={waveformRef}
-                                    isSpeaking={isSpeaking}
-                                    setIsSpeaking={setIsSpeaking}
-                                    silentSeconds={silentSeconds}
-                                    setSilentSeconds={setSilentSeconds}
-                                    audioStarted={audioStarted}
-                                    setAudioStarted={setAudioStarted}
-                                />
-
-                                <button
-                                    className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
-                                    style={{
-                                        background: `linear-gradient(to right, #f230aa ${silentSeconds * 20}%, transparent 0%)`
-                                    }}
-                                >
-                                    {silentSeconds >= 5 ? 'Respuesta enviada' : 'Repondiendo'}
-                                </button>
-                            </div>
+                            <button
+                                className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
+                                style={{
+                                    background: `linear-gradient(to right, #f230aa ${silentSeconds * 20}%, transparent 0%)`
+                                }}
+                            >
+                                {silentSeconds >= 5 ? 'Respuesta enviada' : 'Repondiendo'}
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
         </div>
     );
