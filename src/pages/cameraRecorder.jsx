@@ -12,19 +12,25 @@ const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log("El dispositivo es:",selectedDeviceId);
+        console.log("El dispositivo es:", selectedDeviceId);
+
         const startCamera = async () => {
             try {
+                if (!selectedDeviceId) {
+                    console.error('selectedDeviceId no está definido');
+                    return;
+                }
+
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: {
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    frameRate: { ideal: 60 },
-                    deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
-                },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60 },
+                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+                    },
                     audio: true 
                 });
-                
+
                 videoRef.current.srcObject = stream;
                 mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8,opus' });
 
@@ -39,7 +45,7 @@ const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }
         };
 
         startCamera();
-    }, []);
+    }, [selectedDeviceId]);
 
     const handleStartRecording = () => {
         setRecording(true);
