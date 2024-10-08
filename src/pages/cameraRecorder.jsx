@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners'; // Importar el spinner
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -8,6 +9,7 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
     const mediaRecorderRef = useRef(null);
     const [recording, setRecording] = useState(false);
     const [recordedChunks, setRecordedChunks] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const startCamera = async () => {
@@ -95,6 +97,7 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
                 console.error('Error uploading video:', error);
             } finally {
                 setIsUploading(false); // Ocultar el spinner y el mensaje
+                navigate('/');
             }
         };
     
