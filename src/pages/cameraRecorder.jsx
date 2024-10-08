@@ -97,7 +97,7 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
                 console.error('Error uploading video:', error);
             } finally {
                 setIsUploading(false); // Ocultar el spinner y el mensaje
-                navigate('/');
+                //navigate('/');
             }
         };
     
