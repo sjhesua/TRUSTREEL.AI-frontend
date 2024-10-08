@@ -4,7 +4,7 @@ import { ClipLoader } from 'react-spinners'; // Importar el spinner
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, ref) => {
+const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }, ref) => {
     const videoRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const [recording, setRecording] = useState(false);
@@ -18,7 +18,8 @@ const CameraRecorder = forwardRef(({ StartRecording, StopRecording, videoId }, r
                     video: {
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    frameRate: { ideal: 60 }
+                    frameRate: { ideal: 60 },
+                    deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
                 },
                     audio: true 
                 });

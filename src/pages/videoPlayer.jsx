@@ -266,8 +266,8 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 Join
                             </button>
                         </div>
-                        <div class="bg-gray-500 p-2">
-                            <video ref={videoRef} className="fixed-size-video" width="100%" autoPlay>
+                        <div class="bg-gray-500">
+                            <video ref={videoRef} className="fixed-size-video " width="100%" height="100%" autoPlay>
                                 Tu navegador no soporta la etiqueta de video.
                             </video>
                         </div>
@@ -327,7 +327,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                     </div>
                     <div className="flex flex-col">
 
-                        <CameraRecorder ref={cameraRecorderRef} videoId={videoId} />
+                        <CameraRecorder selectedDeviceId={selectedDeviceId} ref={cameraRecorderRef} videoId={videoId} />
 
                         <div className='flex absolute items-center bottom-5 right-5 z-20'>
                             <div>

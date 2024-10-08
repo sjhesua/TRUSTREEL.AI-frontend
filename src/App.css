@@ -104,6 +104,7 @@
   background-size: cover;
 }
 .fixed-size-video {
+  min-width: 100%;
   width: 440px; /* Ancho fijo */
-  height: 280px; /* Alto fijo */
+  height: 384px; /* Alto fijo */
 }
