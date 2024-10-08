@@ -13,7 +13,7 @@ const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }
 
     useEffect(() => {
         const startCamera = async () => {
-            try {
+            
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: {
                     width: { ideal: 1920 },
@@ -32,9 +32,7 @@ const CameraRecorder = forwardRef(({ selectedDeviceId , StopRecording, videoId }
                         setRecordedChunks((prev) => [...prev, event.data]);
                     }
                 };
-            } catch (err) {
-                console.error('Error accessing camera: ', err);
-            }
+            
         };
 
         startCamera();
