@@ -318,9 +318,9 @@ const VideoPlayer = ({ videos, videoId }) => {
                                     videoRefs.current[index].classList.remove('blur-sm');
                                 }}
                                 className={`absolute w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
-                                style={{ ...video.style, transform: 'translate(-10%, 0%)' }}
+                                style={{ ...video.style, transform: 'translate(-14%, 0%)' }}
                                 onLoadedMetadata={() => {
-                                    console.log(video.style);
+                                    console.log(video);
                                 }}
                             />
                         ))}
