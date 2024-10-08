@@ -103,3 +103,7 @@
   filter: blur(5px) grayscale(100%);
   background-size: cover;
 }
+.fixed-size-video {
+  width: 440px; /* Ancho fijo */
+  height: 280px; /* Alto fijo */
+}

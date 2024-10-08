@@ -11,24 +11,35 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
     const [micActive, setMicActive] = useState(false);
 
     const setupAudio = async () => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        audioContextRef.current = audioContext;
-        analyserRef.current = analyser;
-        dataArrayRef.current = dataArray;
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-
-        setAudioStarted(true);
-        draw();
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+    
+            audioContextRef.current = audioContext;
+            analyserRef.current = analyser;
+            dataArrayRef.current = dataArray;
+    
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+    
+            setAudioStarted(true);
+            draw();
+        } catch (err) {
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                console.error("Permisos denegados para el micrófono: ", err);
+                alert("Permisos denegados. Por favor, permite el acceso al micrófono en la configuración de tu navegador.");
+            } else {
+                console.error("Error al configurar el audio: ", err);
+                alert("Ocurrió un error al configurar el audio. Por favor, inténtalo de nuevo.");
+            }
+        }
     };
+
     const stopAudio = () => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
