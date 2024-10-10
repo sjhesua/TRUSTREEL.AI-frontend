@@ -158,7 +158,7 @@ const VideoPlayer = ({ videos, videoId }) => {
         const updateCameraStream = async () => {
             try {
                 if (videoRef.current && selectedDeviceId) {
-                    alert('Selected device ID:', selectedDeviceId);
+                    alert('Selected device ID: ' + selectedDeviceId);
                     videoRef.current.srcObject = null; // Limpia el srcObject anterior
                     const stream = await navigator.mediaDevices.getUserMedia({
                         video: {
