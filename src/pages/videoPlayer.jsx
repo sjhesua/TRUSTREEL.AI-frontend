@@ -158,22 +158,27 @@ const VideoPlayer = ({ videos, videoId }) => {
         const updateCameraStream = async () => {
             try {
                 if (videoRef.current && selectedDeviceId) {
-                    alert('Selected device ID: ' + selectedDeviceId);
+                    alert('Selected device ID:' + selectedDeviceId);
                     videoRef.current.srcObject = null; // Limpia el srcObject anterior
-                    const stream = await navigator.mediaDevices.getUserMedia({
+                    const constraints = {
                         video: {
                             width: { ideal: 1920 },
                             height: { ideal: 1080 },
                             frameRate: { ideal: 60 },
                             deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
                         }
-                    });
+                    };
+                    alert('Constraints:' + constraints);
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     videoRef.current.srcObject = stream;
-                    console.log('Stream updated successfully');
+                    alert('Stream updated successfully');
                 }
             } catch (err) {
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                     alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
+                } else if (err.name === 'OverconstrainedError') {
+                    console.error("Las restricciones no son compatibles con la cámara seleccionada: ", err);
+                    alert("Las restricciones no son compatibles con la cámara seleccionada: " + err.message);
                 } else {
                     console.error("Error al acceder a la cámara: ", err);
                     alert("Error al acceder a la cámara: " + err.message);
