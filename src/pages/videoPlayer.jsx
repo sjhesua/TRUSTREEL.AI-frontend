@@ -170,7 +170,10 @@ const VideoPlayer = ({ videos, videoId }) => {
                     };
                     alert('Constraints: ' + JSON.stringify(constraints, null, 2));
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    videoRef.current.srcObject = stream;
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = stream;
+                    }
+                    //videoRef.current.srcObject = stream;
                     alert('Stream updated successfully');
                 }
             } catch (err) {
