@@ -258,31 +258,30 @@ const VideoPlayer = ({ videos, videoId }) => {
                 </div>
             </div>
             {/**/}
-            <div className={`flex flex-wrap h-screen absolute w-full ${joined ? '' : 'hidden'}`}>
-                <div className="w-full md:p-10 flex flex-col items-center justify-center">
-                    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                        <div class="bg-white p-2 flex items-center justify-around">
+            <div className={`flex flex-wrap absolute w-full ${joined ? '' : 'hidden'}`}>
+                <div className="w-full flex flex-col items-center justify-center">
+                    <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg max-h-screen max-w-screen overflow-auto">
+                        <div className="bg-white p-2 flex items-center justify-around">
                             <p>Are you ready to join?</p>
                             <button disabled={!isCameraOn} onClick={handleInitialButtonClick} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
                                 }`}>
                                 Join
                             </button>
                         </div>
-                        <div class="bg-gray-500">
+                        <div className="bg-gray-500">
                             <video ref={videoRef} className="fixed-size-video " width="100%" height="100%" autoPlay>
                                 Tu navegador no soporta la etiqueta de video.
                             </video>
                         </div>
-                        <div class="bg-white p-2 sm:p-6 flex items-center ">
+                        <div className="bg-white p-2 sm:p-6 flex items-center ">
                             <button onClick={toggleCamera} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
-                                {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera className="" />}
+                                {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
                             </button>
                             <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
                                 {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
                             </button>
                         </div>
-                        <div class="bg-white p-2 flex items-center justify-around">
-
+                        <div className="bg-white p-2 flex items-center justify-around">
                             <label htmlFor="cameraSelect" className="block mb-2">Selecciona una cámara:</label>
                             <select
                                 id="cameraSelect"
@@ -296,10 +295,8 @@ const VideoPlayer = ({ videos, videoId }) => {
                                     </option>
                                 ))}
                             </select>
-
                         </div>
                     </div>
-
                 </div>
             </div>
 
