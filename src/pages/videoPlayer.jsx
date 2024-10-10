@@ -155,34 +155,33 @@ const VideoPlayer = ({ videos, videoId }) => {
 
     //esto se activa cuando se cambia la camara
     useEffect(() => {
-        try {
-            if (videoRef.current && selectedDeviceId) {
-                // Aquí puedes actualizar el src del video con el selectedDeviceId
-                videoRef.current.srcObject = null; // Limpia el srcObject anterior
-                navigator.mediaDevices.getUserMedia({
-                    video: {
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        frameRate: { ideal: 60 },
-                        //el dispositivo seleccionado
-                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
-                    }
-                })
-                    .then(stream => {
-                        videoRef.current.srcObject = stream;
-                    })
-                    .catch(error => {
-                        console.error('Error accessing media devices.', error);
+        const updateCameraStream = async () => {
+            try {
+                if (videoRef.current && selectedDeviceId) {
+                    alert('Selected device ID:', selectedDeviceId);
+                    videoRef.current.srcObject = null; // Limpia el srcObject anterior
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 },
+                            frameRate: { ideal: 60 },
+                            deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+                        }
                     });
+                    videoRef.current.srcObject = stream;
+                    console.log('Stream updated successfully');
+                }
+            } catch (err) {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
+                } else {
+                    console.error("Error al acceder a la cámara: ", err);
+                    alert("Error al acceder a la cámara: " + err.message);
+                }
             }
-        } catch (err) {
-            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
-            } else {
-                console.error("Error al acceder a la cámara: ", err);
-                alert("Error al acceder a la cámara: " + err.message);
-            }
-        }
+        };
+    
+        updateCameraStream();
     }, [selectedDeviceId]);
 
     const videoConfig = async () => {
