@@ -7,8 +7,6 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const VideoPlayer = ({ videos, videoId }) => {
     const [showInitialButton, setShowInitialButton] = useState(true);
-
-
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
@@ -121,12 +119,9 @@ const VideoPlayer = ({ videos, videoId }) => {
     //VIDEO 
     const videoRef = useRef(null);
     const [isCameraOn, setIsCameraOn] = useState(false);
-    const [isMicrophoneOn, setIsMicrophoneOn] = useState(false);
     const [devices, setDevices] = useState([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState('');
-    const audioStreamRef = useRef(null);
     const [joined, setJoined] = useState(false);
-    const [streamVideo, setStreamVideo] = useState(null);
 
     const handleJoin = () => {
         setJoined(true);
@@ -157,12 +152,40 @@ const VideoPlayer = ({ videos, videoId }) => {
             setSelectedDeviceId(devices[0].deviceId);
         }
     }, [devices]);
-    
-    useEffect(() =>{
-        videoConfig();
-    },[selectedDeviceId]);
 
-    const videoConfig = async () =>{
+    //esto se activa cuando se cambia la camara
+    useEffect(() => {
+        try {
+            if (videoRef.current && selectedDeviceId) {
+                // Aquí puedes actualizar el src del video con el selectedDeviceId
+                videoRef.current.srcObject = null; // Limpia el srcObject anterior
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60 },
+                        //el dispositivo seleccionado
+                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+                    }
+                })
+                    .then(stream => {
+                        videoRef.current.srcObject = stream;
+                    })
+                    .catch(error => {
+                        console.error('Error accessing media devices.', error);
+                    });
+            }
+        } catch (err) {
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
+            } else {
+                console.error("Error al acceder a la cámara: ", err);
+                alert("Error al acceder a la cámara: " + err.message);
+            }
+        }
+    }, [selectedDeviceId]);
+
+    const videoConfig = async () => {
         //solicita los permisos de la camara
         const constraints = {
             video: {
@@ -174,7 +197,6 @@ const VideoPlayer = ({ videos, videoId }) => {
             }
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        setStreamVideo(stream);
         if (videoRef.current) {
             videoRef.current.srcObject = stream;
         }
