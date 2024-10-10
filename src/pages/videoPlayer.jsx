@@ -158,8 +158,14 @@ const VideoPlayer = ({ videos, videoId }) => {
         const updateCameraStream = async () => {
             try {
                 if (videoRef.current && selectedDeviceId) {
-                    alert('Selected device ID:' + selectedDeviceId);
-                    videoRef.current.srcObject = null; // Limpia el srcObject anterior
+                    console.log('Selected device ID:', selectedDeviceId);
+    
+                    // Detener el stream anterior si existe
+                    if (videoRef.current.srcObject) {
+                        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                        videoRef.current.srcObject = null;
+                    }
+    
                     const constraints = {
                         video: {
                             width: { ideal: 1920 },
@@ -168,13 +174,11 @@ const VideoPlayer = ({ videos, videoId }) => {
                             deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
                         }
                     };
-                    alert('Constraints: ' + JSON.stringify(constraints, null, 2));
+                    console.log('Constraints:', constraints);
+    
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                    }
-                    //videoRef.current.srcObject = stream;
-                    alert('Stream updated successfully');
+                    videoRef.current.srcObject = stream;
+                    console.log('Stream updated successfully');
                 }
             } catch (err) {
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -188,6 +192,9 @@ const VideoPlayer = ({ videos, videoId }) => {
                 }
             }
         };
+    
+        updateCameraStream();
+    }, [selectedDeviceId]);
     
         updateCameraStream();
     }, [selectedDeviceId]);
