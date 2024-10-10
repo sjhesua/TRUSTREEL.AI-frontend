@@ -141,7 +141,10 @@ const VideoPlayer = ({ videos, videoId }) => {
                 const videoDevices = devices.filter(device => device.kind === 'videoinput');
                 //estado con solo los dispositivos de video
                 setDevices(videoDevices);
-
+                if (videoDevices.length > 0) {
+                    setSelectedDeviceId(videoDevices[0].deviceId);
+                    changeCamera(videoDevices[0].deviceId);
+                }
             } catch (err) {
                 console.error("Error enumerating devices: ", err);
             }
@@ -157,7 +160,7 @@ const VideoPlayer = ({ videos, videoId }) => {
         if (devices.length > 0) {
             setSelectedDeviceId(devices[0].deviceId);
         }
-    }, [devices]);
+    }, [devices,selectedDeviceId]);
 
     const toggleCamera = async () => {
         if (isCameraOn) {
@@ -195,6 +198,18 @@ const VideoPlayer = ({ videos, videoId }) => {
             }
         }
         setIsCameraOn(!isCameraOn);
+    };
+
+    const changeCamera = (deviceId) => {
+        if (videoRef.current) {
+            navigator.mediaDevices.getUserMedia({
+                video: { deviceId: { exact: deviceId } }
+            }).then(stream => {
+                videoRef.current.srcObject = stream;
+            }).catch(error => {
+                console.error('Error accessing the camera', error);
+            });
+        }
     };
 
     return (
@@ -270,7 +285,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                         </div>
                         <div className="bg-gray-500">
                             <video ref={videoRef} className="fixed-size-video " width="100%" height="100%" autoPlay>
-                                Tu navegador no soporta la etiqueta de video.
+                                Tu navegador no soporta la etiqueta de video. MAXIMOS
                             </video>
                         </div>
                         <div className="bg-white p-2 sm:p-6 flex items-center ">
