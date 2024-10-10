@@ -141,10 +141,6 @@ const VideoPlayer = ({ videos, videoId }) => {
                 const videoDevices = devices.filter(device => device.kind === 'videoinput');
                 //estado con solo los dispositivos de video
                 setDevices(videoDevices);
-                if (videoDevices.length > 0) {
-                    setSelectedDeviceId(videoDevices[0].deviceId);
-                    changeCamera(videoDevices[0].deviceId);
-                }
             } catch (err) {
                 console.error("Error enumerating devices: ", err);
             }
@@ -160,9 +156,32 @@ const VideoPlayer = ({ videos, videoId }) => {
         if (devices.length > 0) {
             setSelectedDeviceId(devices[0].deviceId);
         }
-    }, [devices,selectedDeviceId]);
+    }, [devices]);
+    
+    useEffect(() =>{
+        videoConfig();
+    },[selectedDeviceId]);
+
+    const videoConfig = async () =>{
+        //solicita los permisos de la camara
+        const constraints = {
+            video: {
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 60 },
+                //el dispositivo seleccionado
+                deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
+            }
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        setStreamVideo(stream);
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+        }
+    }
 
     const toggleCamera = async () => {
+        //Si esta la camara encendida y se apreta el boton
         if (isCameraOn) {
             // Detener la transmisión de la cámara y quitar los permisos
             if (videoRef.current && videoRef.current.srcObject) {
@@ -174,20 +193,7 @@ const VideoPlayer = ({ videos, videoId }) => {
             }
         } else {
             try {
-                // Solicitar permisos para la cámara
-                const constraints = {
-                    video: {
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        frameRate: { ideal: 60 },
-                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
-                    }
-                };
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                setStreamVideo(stream);
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
+                videoConfig();
             } catch (err) {
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                     alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
@@ -198,18 +204,6 @@ const VideoPlayer = ({ videos, videoId }) => {
             }
         }
         setIsCameraOn(!isCameraOn);
-    };
-
-    const changeCamera = (deviceId) => {
-        if (videoRef.current) {
-            navigator.mediaDevices.getUserMedia({
-                video: { deviceId: { exact: deviceId } }
-            }).then(stream => {
-                videoRef.current.srcObject = stream;
-            }).catch(error => {
-                console.error('Error accessing the camera', error);
-            });
-        }
     };
 
     return (
