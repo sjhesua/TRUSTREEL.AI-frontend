@@ -168,7 +168,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                             deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
                         }
                     };
-                    alert('Constraints:' + constraints);
+                    alert('Constraints: ' + JSON.stringify(constraints, null, 2));
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     videoRef.current.srcObject = stream;
                     alert('Stream updated successfully');
