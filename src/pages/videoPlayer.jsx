@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Waveform from './Waveform';
 import CameraRecorder from './cameraRecorder';
-import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
+import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio, AiTwotonePicture } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -198,7 +198,7 @@ const VideoPlayer = ({ videos, videoId }) => {
     };
 
     return (
-        <div className="h-screen w-screen overflow-y">
+        <div className="h-screen w-screen overflow-y flex items-center justify-center">
 
             <p className="inline-block absolute top-2 left-2 text-2xl font-bold text-white p-2">TrustReel</p>
             {/* */}
@@ -248,7 +248,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                                     className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
                                         }`}
                                     disabled={!isChecked}
-                                    onClick={handleJoin}
+                                    onClick={() => { handleJoin(); toggleCamera(); }}
                                 >
                                     Let's Go
                                 </button>
@@ -281,8 +281,8 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
                             </button>
                         </div>
-                        <div className="bg-white p-2 flex items-center justify-around">
-                            <label htmlFor="cameraSelect" className="block mb-2">Selecciona una cámara:</label>
+                        <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
+                            <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Selecciona una cámara:</label>
                             <select
                                 id="cameraSelect"
                                 value={selectedDeviceId}
