@@ -160,7 +160,7 @@ const VideoPlayer = ({ videos, videoId }) => {
         if (devices.length > 0) {
             setSelectedDeviceId(devices[0].deviceId);
         }
-    }, [devices,selectedDeviceId]);
+    }, [devices]);
 
     const toggleCamera = async () => {
         if (isCameraOn) {
