@@ -1,7 +1,7 @@
 export {default as Home} from './Home.jsx';
 export {default as Mesajes} from './Mesajes.jsx';
 export {default as Conferencia} from './conferencia.jsx';
-export {default as VideoRecorder} from './test.jsx';
+export {default as Test} from './test.jsx';
 export {default as Dashboard} from './dashboard.jsx';
 export {default as CreateVideo} from './createVideo.jsx';
 export {default as VideoConference} from './VideoConference2.jsx';

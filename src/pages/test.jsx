@@ -1,74 +1,50 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import Webcam from "react-webcam";
+
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-function VideoUpload() {
-  const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
 
-  const [queue, setQueue] = useState([]);
 
-  const [isUploading, setIsUploading] = useState(false);
-  const videoRef = useRef(null);
+function Test() {
+  const webcamRef = useRef(null);
+  const [facingMode, setFacingMode] = useState('user');
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+
+  const handleDevices = useCallback((mediaDevices) => {
+    setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
+  }, [])
 
   useEffect(() => {
-    if (queue.length > 0 && !isUploading) {
-      uploadFragment(queue[0]);
-    }
-  }, [queue, isUploading]);
-
-  const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-
-        setQueue((prevQueue) => [...prevQueue, event.data]);
-      }
-    };
-    recorder.start(1000); // Graba en fragmentos de 1 segundo
-    setMediaRecorder(recorder);
-    setRecording(true);
-  };
-
-  const stopRecording = () => {
-    mediaRecorder.stop();
-    videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-    setRecording(false);
-  };
-
-  const uploadFragment = async (fragment) => {
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('title', `User Video`);
-    formData.append('video_file', fragment, `video_${Date.now()}.webm`);
-
-    try {
-      const response = await fetch(`${backendUrl}/videos/api/upload/`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      console.log(data);
-      
-      setQueue((prevQueue) => prevQueue.slice(1));
-    } catch (error) {
-      console.error('Error uploading video fragment:', error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+    navigator.mediaDevices.enumerateDevices().then(handleDevices);
+  }, [])
 
   return (
     <div>
-      <h1>Upload Video</h1>
-      <video ref={videoRef} autoPlay></video>
-      <div>
-        {!recording && <button onClick={startRecording}>Start Recording</button>}
-        {recording && <button onClick={stopRecording}>Stop Recording</button>}
-      </div>
+      <Webcam
+        audio={false}
+        ref={webcamRef}
+        videoConstraints={{
+          facingMode: facingMode,
+          deviceId: selectedDevice,
+        }}
+      />
+      {
+        devices.length > 0 && (
+          <select
+            onChange={(e) => setSelectedDevice(e.target.value)}
+            className="p-2 border rounded"
+          >
+            {devices.map((device, index) => (
+              <option key={index} value={device.deviceId}>
+                {device.label || `Cámara ${index + 1}`}
+              </option>
+            ))}
+          </select>
+        )
+      }
     </div>
   );
 }
 
-export default VideoUpload;
+export default Test;
