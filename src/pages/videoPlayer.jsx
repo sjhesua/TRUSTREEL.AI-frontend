@@ -2,13 +2,15 @@ import React, { useRef, useState, useEffect } from 'react';
 import Waveform from './Waveform';
 import CameraRecorder from './cameraRecorder';
 import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio, AiTwotonePicture } from 'react-icons/ai';
-
 import { Link, useNavigate } from 'react-router-dom';
+import Webcam from "react-webcam";
 
 const VideoPlayer = ({ videos, videoId }) => {
+    const webcamRef = useRef(null);
+    const [capturing, setCapturing] = useState(false);
+    const [facingMode, setFacingMode] = useState('user');
+
     const [showInitialButton, setShowInitialButton] = useState(true);
-
-
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
@@ -132,37 +134,20 @@ const VideoPlayer = ({ videos, videoId }) => {
         setJoined(true);
     };
 
-    useEffect(() => {
-        const getDevices = async () => {
-            try {
-                //optener todos los dispositivos
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                //optener solo los que sean de video
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                //estado con solo los dispositivos de video
-                setDevices(videoDevices);
-                if (videoDevices.length > 0) {
-                    setSelectedDeviceId(videoDevices[0].deviceId);
-                    changeCamera(videoDevices[0].deviceId);
-                }
-            } catch (err) {
-                console.error("Error enumerating devices: ", err);
-            }
-        };
-        navigator.mediaDevices.addEventListener('devicechange', getDevices);
-        getDevices();
-        return () => {
-            navigator.mediaDevices.removeEventListener('devicechange', getDevices);
-        };
-    }, []);
+    
 
+    //si hay dispositivos, seleccionar el primero
     useEffect(() => {
         if (devices.length > 0) {
             setSelectedDeviceId(devices[0].deviceId);
         }
     }, [devices]);
 
-    const toggleCamera = async () => {
+    useEffect(() => {
+        
+    },[selectedDeviceId])
+
+    /*const toggleCamera = async () => {
         if (isCameraOn) {
             // Detener la transmisión de la cámara y quitar los permisos
             if (videoRef.current && videoRef.current.srcObject) {
@@ -199,7 +184,7 @@ const VideoPlayer = ({ videos, videoId }) => {
         }
         setIsCameraOn(!isCameraOn);
     };
-
+    */
     const changeCamera = (deviceId) => {
         if (videoRef.current) {
             navigator.mediaDevices.getUserMedia({
@@ -263,7 +248,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                                     className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
                                         }`}
                                     disabled={!isChecked}
-                                    onClick={() => { handleJoin(); toggleCamera(); }}
+                                    onClick={() => { handleJoin(); /*toggleCamera();*/ }}
                                 >
                                     Let's Go
                                 </button>
@@ -282,14 +267,22 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 }`}>
                                 Join
                             </button>
+                            <button onClick={()=>{setFacingMode(facingMode==="user" ? "environment":"user")}} 
+                            className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                cambiar camara
+                            </button>
                         </div>
                         <div className="bg-gray-500">
-                            <video ref={videoRef} className="fixed-size-video " width="100%" height="100%" autoPlay>
-                                Tu navegador no soporta la etiqueta de video. MAXIMOS
-                            </video>
+                           <Webcam 
+                            audio={false}
+                            ref={webcamRef}
+                            videoConstraints={{
+                                facingMode: facingMode,
+                            }}
+                           />
                         </div>
                         <div className="bg-white p-2 sm:p-6 flex items-center ">
-                            <button onClick={toggleCamera} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                            <button className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
                                 {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
                             </button>
                             <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
@@ -304,7 +297,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 onChange={(e) => setSelectedDeviceId(e.target.value)}
                                 className="p-2 border rounded"
                             >
-                                {devices.map(device => (
+                                {devices.map((device,index) => (
                                     <option key={device.deviceId} value={device.deviceId}>
                                         {device.label || `Cámara ${device.deviceId}`}
                                     </option>
