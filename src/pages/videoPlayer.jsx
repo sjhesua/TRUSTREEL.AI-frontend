@@ -17,6 +17,9 @@ const VideoPlayer = ({ videos, videoId }) => {
     const [allVideosPlayed, setAllVideosPlayed] = useState(false);
     const videoRefs = useRef([]);
     //Video
+    useEffect(() => {
+        alert(facingMode);
+    }, [facingMode]);
 
     const cameraRecorderRef = useRef(null);
 
