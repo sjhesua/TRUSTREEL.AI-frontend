@@ -18,7 +18,7 @@ function Test() {
 
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices);
-  }, [])
+  }, [handleDevices])
 
   return (
     <div>
