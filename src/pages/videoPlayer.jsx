@@ -155,45 +155,16 @@ const VideoPlayer = ({ videos, videoId }) => {
 
     //esto se activa cuando se cambia la camara
     useEffect(() => {
-        const updateCameraStream = async () => {
-            try {
-                if (videoRef.current && selectedDeviceId) {
-                    console.log('Selected device ID:', selectedDeviceId);
-    
-                    // Detener el stream anterior si existe
-                    if (videoRef.current.srcObject) {
-                        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-                        videoRef.current.srcObject = null;
-                    }
-    
-                    const constraints = {
-                        video: {
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 },
-                            frameRate: { ideal: 60 },
-                            deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined
-                        }
-                    };
-                    console.log('Constraints:', constraints);
-                    
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    videoRef.current.srcObject = stream;
-                    console.log('Stream updated successfully');
-                }
-            } catch (err) {
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    alert("Permisos denegados. Por favor, permite el acceso a la cámara y el micrófono.");
-                } else if (err.name === 'OverconstrainedError') {
-                    console.error("Las restricciones no son compatibles con la cámara seleccionada: ", err);
-                    alert("Las restricciones no son compatibles con la cámara seleccionada: " + err.message);
-                } else {
-                    console.error("Error al acceder a la cámara: ", err);
-                    alert("Error al acceder a la cámara: " + err.message);
-                }
-            }
-        };
-    
-        updateCameraStream();
+        alert('Selected Device ID:' + selectedDeviceId);
+        if (selectedDeviceId) {
+            navigator.mediaDevices.getUserMedia({
+                video: { deviceId: { exact: selectedDeviceId } }
+            }).then(stream => {
+                videoRef.current.srcObject = stream;
+            }).catch(error => {
+                alert('Error accessing the camera:' + error);
+            });
+        }
     }, [selectedDeviceId]);
 
     const videoConfig = async () => {
