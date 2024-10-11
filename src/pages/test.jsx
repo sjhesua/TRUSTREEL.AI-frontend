@@ -3,8 +3,6 @@ import Webcam from "react-webcam";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-
-
 function Test() {
   const webcamRef = useRef(null);
   const [facingMode, setFacingMode] = useState('user');
@@ -18,7 +16,7 @@ function Test() {
 
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices);
-  }, [handleDevices])
+  }, [])
 
   return (
     <div>
@@ -26,7 +24,7 @@ function Test() {
         audio={false}
         ref={webcamRef}
         videoConstraints={{
-          facingMode: facingMode,
+          
           deviceId: selectedDevice,
         }}
       />
