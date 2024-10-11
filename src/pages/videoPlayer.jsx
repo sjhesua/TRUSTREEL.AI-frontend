@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Waveform from './Waveform';
 import CameraRecorder from './cameraRecorder';
 import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio, AiTwotonePicture } from 'react-icons/ai';
@@ -9,7 +9,9 @@ const VideoPlayer = ({ videos, videoId }) => {
     const webcamRef = useRef(null);
     const [capturing, setCapturing] = useState(false);
     const [facingMode, setFacingMode] = useState('user');
-
+    const [devices, setDevices] = useState([]);
+    const [selectedDevice, setSelectedDevice] = useState(null);
+    
     const [showInitialButton, setShowInitialButton] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -127,7 +129,17 @@ const VideoPlayer = ({ videos, videoId }) => {
     const videoRef = useRef(null);
     const [isCameraOn, setIsCameraOn] = useState(false);
     const [isMicrophoneOn, setIsMicrophoneOn] = useState(false);
-    const [devices, setDevices] = useState([]);
+
+    
+
+    const handleDevices = useCallback((mediaDevices) => {
+        setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
+    }, [])
+
+    useEffect(() => {
+        navigator.mediaDevices.enumerateDevices().then(handleDevices);
+    }, [])
+
     const [selectedDeviceId, setSelectedDeviceId] = useState('');
     const audioStreamRef = useRef(null);
     const [joined, setJoined] = useState(false);
@@ -137,7 +149,7 @@ const VideoPlayer = ({ videos, videoId }) => {
         setJoined(true);
     };
 
-    
+
 
     //si hay dispositivos, seleccionar el primero
     useEffect(() => {
@@ -147,8 +159,8 @@ const VideoPlayer = ({ videos, videoId }) => {
     }, [devices]);
 
     useEffect(() => {
-        
-    },[selectedDeviceId])
+
+    }, [selectedDeviceId])
 
     /*const toggleCamera = async () => {
         if (isCameraOn) {
@@ -188,17 +200,6 @@ const VideoPlayer = ({ videos, videoId }) => {
         setIsCameraOn(!isCameraOn);
     };
     */
-    const changeCamera = (deviceId) => {
-        if (videoRef.current) {
-            navigator.mediaDevices.getUserMedia({
-                video: { deviceId: { exact: deviceId } }
-            }).then(stream => {
-                videoRef.current.srcObject = stream;
-            }).catch(error => {
-                console.error('Error accessing the camera', error);
-            });
-        }
-    };
 
     return (
         <div className="h-screen w-screen overflow-y flex items-center justify-center">
@@ -270,20 +271,21 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 }`}>
                                 Join
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setFacingMode(prevMode => prevMode === "user" ? "environment" : "user")}
                                 className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
                                 cambiar camara
                             </button>
                         </div>
                         <div className="bg-gray-500">
-                           <Webcam 
-                            audio={false}
-                            ref={webcamRef}
-                            videoConstraints={{
-                                facingMode: facingMode,
-                            }}
-                           />
+                            <Webcam
+                                audio={false}
+                                ref={webcamRef}
+                                videoConstraints={{
+                                    facingMode: facingMode,
+                                    deviceId: selectedDevice,
+                                }}
+                            />
                         </div>
                         <div className="bg-white p-2 sm:p-6 flex items-center ">
                             <button className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
@@ -295,18 +297,24 @@ const VideoPlayer = ({ videos, videoId }) => {
                         </div>
                         <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
                             <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Selecciona una cámara:</label>
-                            <select
-                                id="cameraSelect"
-                                value={selectedDeviceId}
-                                onChange={(e) => setSelectedDeviceId(e.target.value)}
-                                className="p-2 border rounded"
-                            >
-                                {devices.map((device,index) => (
-                                    <option key={device.deviceId} value={device.deviceId}>
-                                        {device.label || `Cámara ${device.deviceId}`}
-                                    </option>
-                                ))}
-                            </select>
+                            {
+                                devices.length === 0 && (
+                                    <select
+                                        id="cameraSelect"
+                                        value={selectedDeviceId}
+                                        onChange={(e) => setSelectedDevice(e.target.value)}
+                                        className="p-2 border rounded"
+                                    >
+
+                                        {devices.map((device, index) => (
+                                            <option key={index} value={device.deviceId}>
+                                                {device.label || `Cámara ${index+1}`}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )
+                            }
+
                         </div>
                     </div>
                 </div>
