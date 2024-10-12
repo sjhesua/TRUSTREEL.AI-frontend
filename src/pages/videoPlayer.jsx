@@ -344,6 +344,7 @@ const VideoPlayer = ({ videos, videoId }) => {
                         />
                     ))}
                 </div>
+                
                 <div className="flex flex-col">
 
                     <CameraRecorder selectedDeviceId={selectedDeviceId} ref={cameraRecorderRef} videoId={videoId} />
