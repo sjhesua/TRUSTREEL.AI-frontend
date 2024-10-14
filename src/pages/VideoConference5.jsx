@@ -158,7 +158,7 @@ const VideoApp = () => {
     useEffect(() => {
         setAudioStarted(true)
     }, [isSpeaking])
-
+    
     return (
         <div className="bgx3 h-auto">
             {isLoading ? (
@@ -180,33 +180,13 @@ const VideoApp = () => {
             ) : (
                 <>
                     {(configCameraDone === false) ? (
-                        <div className={`min-h-screen flex items-center justify-center p-2 sm:p-2 ${configCameraDone ? 'hidden' : ''}`}>
+                        <div className={`min-h-screen flex items-center justify-center p-2 sm:p-2 `}>
                             <div className="flex flex-col w-full">
                                 <div class="grid md:grid-cols-2 sm:grid-row-2 gap-2">
-                                    <div className="p-10 rounded-lg shadow-lg text-center">
-                                        <div className="up-down-animation">
-                                            <p className="text-4xl font-bold text-white animate__animated animate__fadeInUp">
-                                                TrustReel
-                                            </p>
-                                            <p className="text-2xl text-white mb-6 animate__animated animate__fadeInUp">
-                                                TrustReel Video Testimonial
-                                            </p>
-                                        </div>
-                                        <ul className="list-disc pl-5 space-y-4">
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                Pick a quiet and well-lit place
-                                            </li>
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                Relax &amp; be yourself – it doesn't have to be perfect
-                                            </li>
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                You can redo your recording if you're not happy with it
-                                            </li>
-                                        </ul>
-                                    </div>
+
                                     <div className="bg-white rounded-lg shadow-md p-2 animate__animated animate__fadeIn" style={{ animationDelay: "0.9s" }}>
                                         {isCameraOn ? (
-                                            <div className="h-96 bg-gray-600 flex justify-center items-center">
+                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center">
                                                 <Webcam
                                                     className="max-h-full max-w-full"
                                                     audio={false}
@@ -214,10 +194,11 @@ const VideoApp = () => {
                                                     videoConstraints={{
                                                         deviceId: selectedDevice,
                                                     }}
+                                                    disablePictureInPicture
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="h-96 bg-gray-600 flex justify-center items-center">
+                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center">
                                                 <p className="text-white text-center">Webcam Disabled</p>
                                             </div>
                                         )}
@@ -247,7 +228,27 @@ const VideoApp = () => {
                                         </ul>
                                         <button disabled={!isCameraOn} className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${isCameraOn ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '}`} onClick={handleSetConfigCameraDone}>Done</button>
                                     </div>
-
+                                    <div className="p-10 rounded-lg shadow-lg text-center">
+                                        <div className="up-down-animation">
+                                            <p className="text-4xl font-bold text-white animate__animated animate__fadeInUp">
+                                                TrustReel
+                                            </p>
+                                            <p className="text-2xl text-white mb-6 animate__animated animate__fadeInUp">
+                                                TrustReel Video Testimonial
+                                            </p>
+                                        </div>
+                                        <ul className="list-disc pl-5 space-y-4">
+                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
+                                                Pick a quiet and well-lit place
+                                            </li>
+                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
+                                                Relax &amp; be yourself – it doesn't have to be perfect
+                                            </li>
+                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
+                                                You can redo your recording if you're not happy with it
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -255,7 +256,7 @@ const VideoApp = () => {
 
                     {(termsAndConditions === false && configCameraDone === true) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
-                            <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInLeft">
+                            <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
                                     <p className='p-10 text-white'>
                                         Gracias por tu interés en dar feedback sobre la charla que dio Gonzalo Arzuaga en tu grupo Vistage. Te voy a hacer 3 preguntas cortitas acerca de como fue tu experiencia para compartir con otros coordinadores que estén buscando un expositor para sus grupos.
@@ -263,7 +264,7 @@ const VideoApp = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInRight">
+                            <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
                                     <div className="relative transform rounded-lg text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95">
                                         <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
