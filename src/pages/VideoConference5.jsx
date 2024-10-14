@@ -42,14 +42,6 @@ const VideoApp = () => {
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
     }, [])
     //Optenemos 
-    useEffect(() => {
-        const baseUrl = "/app/";
-        const currentPath = location.pathname;
-        if (currentPath.startsWith(baseUrl)) {
-            const extractedPath = currentPath.slice(baseUrl.length);
-            setPath(extractedPath);
-        }
-    }, [location]);
     //VIDEOS
 
     useEffect(() => {
@@ -59,6 +51,7 @@ const VideoApp = () => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                console.log(response)
                 const data = await response.json();
                 setItems(data[0].items);
                 setVideoId(data[0].id);
@@ -68,11 +61,18 @@ const VideoApp = () => {
             }
         };
         fetchVideoQueues();
-    }, []);
+    }, [path]);
 
     const [isLoading, setIsLoading] = useState(true);
     //simulacion de carga
     useEffect(() => {
+        const baseUrl = "/app/";
+        const currentPath = location.pathname;
+        if (currentPath.startsWith(baseUrl)) {
+            const extractedPath = currentPath.slice(baseUrl.length);
+            setPath(extractedPath);
+        }
+
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 3000);
