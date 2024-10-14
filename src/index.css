@@ -38,6 +38,7 @@
 .animate-progress {
   animation: progress 3s linear forwards;
 }
+
 .btnx {
   grid-column-gap: .5rem;
   grid-row-gap: .5rem;

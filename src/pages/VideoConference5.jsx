@@ -172,8 +172,8 @@ const VideoApp = () => {
                         </p>
                     </div>
                     <div className="w-full max-w-md mt-4">
-                        <div className="h-2 bg-gray-300 rounded-full overflow-hidden">
-                            <div className="h-full bg-red-600 animate-progress"></div>
+                        <div className="h-2 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#f230aa] animate-progress"></div>
                         </div>
                     </div>
                 </div>
@@ -186,7 +186,7 @@ const VideoApp = () => {
 
                                     <div className="bg-white rounded-lg shadow-md p-2 animate__animated animate__fadeIn" style={{ animationDelay: "0.9s" }}>
                                         {isCameraOn ? (
-                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center">
+                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center rounded-md">
                                                 <Webcam
                                                     className="max-h-full max-w-full"
                                                     audio={false}
@@ -220,7 +220,7 @@ const VideoApp = () => {
                                             <li>
                                                 <button
                                                     onClick={() => setIsCameraOn(!isCameraOn)}
-                                                    className="text-gray-500 hover:text-[#f230aa] text-4xl"
+                                                    className="text-white text-4xl mb-2 bg-[#f230aa] rounded-full p-2"
                                                 >
                                                     {isCameraOn ? <AiFillVideoCamera /> : <AiOutlineVideoCamera />}
                                                 </button>
@@ -312,10 +312,8 @@ const VideoApp = () => {
                         </div>
                     ) : (<></>)}
                 </>
-
-
             )}
-            <div className={`grid md:grid-cols-2 h-screen w-screen ${(termsAndConditions === true && configCameraDone === true) ? "" : "hidden"}`}>
+            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"}`}>
                 <div className="overflow-hidden w-full h-full">
                     {items.map((video, index) => (
                         <video
@@ -374,7 +372,6 @@ const VideoApp = () => {
                                 audioStarted={audioStarted}
                                 setAudioStarted={setAudioStarted}
                             />
-
                             <button
                                 className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
                                 style={{
