@@ -4,6 +4,7 @@ import { AiFillVideoCamera, AiOutlineVideoCamera } from 'react-icons/ai';
 import VideoPlayer from './videoPlayer';
 import Webcam from "react-webcam";
 import Waveform from './Waveform';
+import { Link } from 'react-router-dom';
 
 import 'animate.css';
 
@@ -144,7 +145,7 @@ const VideoApp = () => {
     };
 
     useEffect(() => {
-        if (silentSeconds >= 5 && audioStarted) {
+        if (silentSeconds >= 4 && audioStarted) {
             if ((!isPlaying && !showInitialButton) || (!allVideosPlayed && !showInitialButton)) {
                 playNextVideo();
             }
@@ -311,9 +312,28 @@ const VideoApp = () => {
                             </div>
                         </div>
                     ) : (<></>)}
+
+                    {(allVideosPlayed === true) ? (
+                        <div className={`flex flex-wrap h-screen absolute`}>
+                            <div className="w-full h-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
+                                <div className='flex flex-col items-center justify-center h-full'>
+                                    <p className='p-10 text-white'>
+                                    Thank you for taking the time to fill out this questionnaire. Any feedback or comments will be greatly appreciated! You can write to us at @TrustReel.
+                                    </p>
+                                    <Link
+                                        to="/"
+                                        className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
+                                            }`}
+                                    >
+                                        Goodbye!
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (<></>)}
                 </>
             )}
-            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"}`}>
+            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${( allVideosPlayed === true) ? "hidden" : ""}`}>
                 <div className="overflow-hidden w-full h-full">
                     {items.map((video, index) => (
                         <video
@@ -375,10 +395,10 @@ const VideoApp = () => {
                             <button
                                 className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
                                 style={{
-                                    background: `linear-gradient(to right, #f230aa ${silentSeconds * 20}%, transparent 0%)`
+                                    background: `linear-gradient(to right, #f230aa ${silentSeconds * 25}%, transparent 0%)`
                                 }}
                             >
-                                {silentSeconds >= 5 ? 'Respuesta enviada' : 'Repondiendo'}
+                                {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
                             </button>
                         </div>
                     </div>

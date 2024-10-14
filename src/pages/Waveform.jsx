@@ -86,7 +86,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
             const v = dataArray[i] / 128.0;
             const y = (v * canvas.height) / 2;
     
-            if (v > 1.05 || v < 0.95) {
+            if (v > 1.06 || v < 0.94) {
                 isSpeakingNow = true;
             }
     
@@ -111,7 +111,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
             let intervalId;
             if ( !isSpeaking) {
                 intervalId = setInterval(() => {
-                    setSilentSeconds(prev => Math.min(prev + 1, 5));
+                    setSilentSeconds(prev => Math.min(prev + 1, 4));
                 }, 1000);
             } else {
                 setSilentSeconds(0);
