@@ -122,6 +122,7 @@ const VideoApp = () => {
     const [audioStarted, setAudioStarted] = useState(false);
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
     const [showInitialButton, setShowInitialButton] = useState(true);
+    const [respuestFinal,SetRespuestaFinal] = useState(false);
 
     const startMic = () => {
         if (waveformRef.current) {
@@ -148,6 +149,10 @@ const VideoApp = () => {
         if (silentSeconds >= 4 && audioStarted) {
             if ((!isPlaying && !showInitialButton) || (!allVideosPlayed && !showInitialButton)) {
                 playNextVideo();
+            }
+            if(allVideosPlayed)
+            {
+                SetRespuestaFinal(true);
             }
         }
         if (isPlaying) {
@@ -313,7 +318,7 @@ const VideoApp = () => {
                         </div>
                     ) : (<></>)}
 
-                    {(allVideosPlayed === true) ? (
+                    {(respuestFinal === true) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
                             <div className="w-full h-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
