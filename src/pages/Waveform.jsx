@@ -124,7 +124,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
             };
         }
 
-    }, [isSpeaking]);
+    }, [isSpeaking, audioStarted]);
     
     useImperativeHandle(ref, () => ({
         startToggleMic: handletoggleMic,

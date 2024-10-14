@@ -27,6 +27,15 @@ module.exports = {
           900: '#002e4d',
         },
       },
+      keyframes: {
+        loading: {
+          '0%, 100%': { marginTop: "25px", height: "10px"},
+          '50%': {  marginTop: "0px", height: "50px" },
+        },
+      },
+      animation: {
+        loading: 'loading 1s ease-in-out infinite',
+      },
     },
   },
   plugins: [require('flowbite/plugin')],
