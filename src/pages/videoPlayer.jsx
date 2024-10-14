@@ -271,11 +271,6 @@ const VideoPlayer = ({ videos, videoId }) => {
                                 }`}>
                                 Join
                             </button>
-                            <button
-                                onClick={() => setFacingMode(prevMode => prevMode === "user" ? "environment" : "user")}
-                                className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
-                                cambiar camara
-                            </button>
                         </div>
                         <div className="bg-gray-500">
                             <Webcam

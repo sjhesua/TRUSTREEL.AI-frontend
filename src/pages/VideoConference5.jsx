@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { AiFillVideoCamera, AiOutlineVideoCamera } from 'react-icons/ai';
+import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
 import VideoPlayer from './videoPlayer';
 import Webcam from "react-webcam";
 import Waveform from './Waveform';
@@ -122,7 +122,7 @@ const VideoApp = () => {
     const [audioStarted, setAudioStarted] = useState(false);
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
     const [showInitialButton, setShowInitialButton] = useState(true);
-    const [respuestFinal,SetRespuestaFinal] = useState(false);
+    const [respuestFinal, SetRespuestaFinal] = useState(false);
 
     const startMic = () => {
         if (waveformRef.current) {
@@ -150,8 +150,7 @@ const VideoApp = () => {
             if ((!isPlaying && !showInitialButton) || (!allVideosPlayed && !showInitialButton)) {
                 playNextVideo();
             }
-            if(allVideosPlayed)
-            {
+            if (allVideosPlayed) {
                 SetRespuestaFinal(true);
             }
         }
@@ -164,7 +163,7 @@ const VideoApp = () => {
     useEffect(() => {
         setAudioStarted(true)
     }, [isSpeaking])
-    
+
     return (
         <div className="bgx3 h-auto">
             {isLoading ? (
@@ -184,44 +183,54 @@ const VideoApp = () => {
                     </div>
                 </div>
             ) : (
-                <>
-                    {(configCameraDone === false) ? (
-                        <div className={`min-h-screen flex items-center justify-center p-2 sm:p-2 `}>
-                            <div className="flex flex-col w-full">
-                                <div class="grid md:grid-cols-2 sm:grid-row-2 gap-2">
 
-                                    <div className="bg-white rounded-lg shadow-md p-2 animate__animated animate__fadeIn" style={{ animationDelay: "0.9s" }}>
+                <>
+                    {/*
+                <div className={`flex items-center justify-center p-2 sm:p-2`}>
+                            <div className="flex flex-col ">
+                                <div class="flex align-center justify-center">
+                                    <div></div>
+                                    <div className="bg-white p-2 shadow-md animate__animated animate__fadeIn rounded-lg" style={{ animationDelay: "0.9s" }}>
                                         {isCameraOn ? (
-                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center rounded-md">
                                                 <Webcam
                                                     className="max-h-full max-w-full"
                                                     audio={false}
                                                     ref={webcamRef}
                                                     videoConstraints={{
                                                         deviceId: selectedDevice,
+                                                        width: { ideal: 1920 },
+                                                        height: { ideal: 1080 },
+                                                        frameRate: { ideal: 60 },
                                                     }}
                                                     disablePictureInPicture
                                                 />
-                                            </div>
+                                            
                                         ) : (
                                             <div className="h-[16rem] bg-gray-600 flex justify-center items-center">
                                                 <p className="text-white text-center">Webcam Disabled</p>
                                             </div>
                                         )}
-                                        {devices.length > 0 && (
-                                            <div className="flex justify-center mt-4 ">
-                                                <select
-                                                    onChange={(e) => setSelectedDevice(e.target.value)}
-                                                    className="p-2 border rounded w-full"
-                                                >
-                                                    {devices.map((device, index) => (
-                                                        <option key={index} value={device.deviceId}>
-                                                            {`Camera ${index + 1}`}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
+                                        <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
+                                            <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Camera:</label>
+                                            {
+                                                devices.length > 0 && (
+                                                    <select
+                                                        id="cameraSelect"
+                                                        onChange={(e) => setSelectedDevice(e.target.value)}
+                                                        className="p-2 border rounded"
+                                                    >
+
+                                                        {devices.map((device, index) => (
+                                                            <option key={index} value={device.deviceId}>
+                                                                {device.label || `Camera ${index + 1}`}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )
+                                            }
+
+                                        </div>
+                                        
                                         <ul class="flex justify-center space-x-4 mt-4">
                                             <li>
                                                 <button
@@ -231,33 +240,92 @@ const VideoApp = () => {
                                                     {isCameraOn ? <AiFillVideoCamera /> : <AiOutlineVideoCamera />}
                                                 </button>
                                             </li>
+                                            <li>
+                                                <button
+                                                    onClick={() => setIsCameraOn(!isCameraOn)}
+                                                    className="text-white text-4xl mb-2 bg-[#f230aa] rounded-full p-2"
+                                                >
+                                                    {isCameraOn ? <AiFillAudio /> : <AiFillAudio />}
+                                                </button>
+                                            </li>
                                         </ul>
-                                        <button disabled={!isCameraOn} className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${isCameraOn ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '}`} onClick={handleSetConfigCameraDone}>Done</button>
-                                    </div>
-                                    <div className="p-10 rounded-lg shadow-lg text-center">
-                                        <div className="up-down-animation">
-                                            <p className="text-4xl font-bold text-white animate__animated animate__fadeInUp">
-                                                TrustReel
-                                            </p>
-                                            <p className="text-2xl text-white mb-6 animate__animated animate__fadeInUp">
-                                                TrustReel Video Testimonial
-                                            </p>
+                                        <div className="bg-white p-2 flex items-center justify-around">
+                                            <p>Are you ready to join?</p>
+                                            <button disabled={!isCameraOn} onClick={handleSetConfigCameraDone} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
+                                                }`}>
+                                                Join
+                                            </button>
                                         </div>
-                                        <ul className="list-disc pl-5 space-y-4">
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                Pick a quiet and well-lit place
-                                            </li>
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                Relax &amp; be yourself – it doesn't have to be perfect
-                                            </li>
-                                            <li className="text-white text-justify text-lg leading-relaxed animate__animated animate__fadeInUp">
-                                                You can redo your recording if you're not happy with it
-                                            </li>
-                                        </ul>
+
+                                    </div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                */}
+                    {(configCameraDone === false) ? (
+
+                        <div className={`flex flex-wrap absolute w-full`}>
+                            <div className="w-full flex flex-col items-center justify-center">
+                                <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg max-h-screen max-w-screen overflow-auto">
+                                    <div className="bg-gray-500">
+                                        {isCameraOn ? (
+                                            <Webcam
+                                                className="max-h-full max-w-full h-[18rem]"
+                                                audio={false}
+                                                ref={webcamRef}
+                                                videoConstraints={{
+                                                    deviceId: selectedDevice,
+                                                    width: { ideal: 1920 },
+                                                    height: { ideal: 1080 },
+                                                    frameRate: { ideal: 60 },
+                                                }}
+                                                disablePictureInPicture
+                                            />) :
+                                            <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
+                                                <p className="text-white text-center">Webcam Disabled</p>
+                                            </div>}
+                                    </div>
+                                    <div className="bg-white p-2 sm:p-6 flex items-center ">
+                                        <button onClick={() => setIsCameraOn(!isCameraOn)} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                            {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
+                                        </button>
+                                        <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                            {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
+                                        </button>
+                                    </div>
+                                    <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
+                                        <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Camera:</label>
+                                        {
+                                            devices.length > 0 && (
+                                                <select
+                                                    id="cameraSelect"
+                                                    onChange={(e) => setSelectedDevice(e.target.value)}
+                                                    className="p-2 border rounded"
+                                                >
+
+                                                    {devices.map((device, index) => (
+                                                        <option key={index} value={device.deviceId}>
+                                                            {device.label || `Camera ${index + 1}`}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            )
+                                        }
+
+                                    </div>
+                                    <div className="bg-white p-2 flex items-center justify-around">
+                                        <p>Are you ready to join?</p>
+                                        <button disabled={!isCameraOn} onClick={handleSetConfigCameraDone} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
+                                            }`}>
+                                            Join
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        ////////////////////////////////
+
                     ) : (<></>)}
 
                     {(termsAndConditions === false && configCameraDone === true) ? (
@@ -323,7 +391,7 @@ const VideoApp = () => {
                             <div className="w-full h-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
                                     <p className='p-10 text-white'>
-                                    Thank you for taking the time to fill out this questionnaire. Any feedback or comments will be greatly appreciated! You can write to us at @TrustReel.
+                                        Thank you for taking the time to fill out this questionnaire. Any feedback or comments will be greatly appreciated! You can write to us at @TrustReel.
                                     </p>
                                     <Link
                                         to="/"
@@ -338,7 +406,7 @@ const VideoApp = () => {
                     ) : (<></>)}
                 </>
             )}
-            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${( allVideosPlayed === true) ? "hidden" : ""}`}>
+            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(allVideosPlayed === true) ? "hidden" : ""}`}>
                 <div className="overflow-hidden w-full h-full">
                     {items.map((video, index) => (
                         <video
@@ -367,6 +435,9 @@ const VideoApp = () => {
                         ref={webcamRef}
                         videoConstraints={{
                             deviceId: selectedDevice,
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 },
+                            frameRate: { ideal: 60 },
                         }}
                     />
 
