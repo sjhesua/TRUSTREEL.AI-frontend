@@ -68,7 +68,7 @@ const VideoApp = () => {
             }
         };
         fetchVideoQueues();
-    }, [path]);
+    }, []);
 
     const [isLoading, setIsLoading] = useState(true);
     //simulacion de carga
