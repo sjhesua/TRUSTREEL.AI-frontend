@@ -16,6 +16,7 @@ const VideoApp = () => {
     const [items, setItems] = useState([]);
     const [videoId, setVideoId] = useState(null);
 
+
     const [termsAndConditions, setTermsAndConditions] = useState(false);
     const [configCameraDone, setConfigCameraDone] = useState(false);
 
@@ -24,6 +25,13 @@ const VideoApp = () => {
     const [devices, setDevices] = useState([]);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [isCameraOn, setIsCameraOn] = useState(true);
+    //Reproductor de video
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
+    const videoRefs = useRef([]);
+    const [allVideosPlayed, setAllVideosPlayed] = useState(false);
+
     //Filtra los dispositivos de video
     const handleDevices = useCallback((mediaDevices) => {
         setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
@@ -62,7 +70,7 @@ const VideoApp = () => {
     }, [path]);
 
     const [isLoading, setIsLoading] = useState(true);
-
+    //simulacion de carga
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
@@ -78,6 +86,26 @@ const VideoApp = () => {
     const handleSetTermsAndConditions = () => {
         setTermsAndConditions(true)
     }
+    //xxxxxxx
+    const playNextVideo = () => {
+        if (isPlaying || currentVideoIndex2 >= items.length) {
+            return;
+        }
+        setIsPlaying(true);
+        const currentVideo = videoRefs.current[currentVideoIndex2];
+        currentVideo.play();
+        currentVideo.onended = () => {
+            setIsPlaying(false);
+            setCurrentVideoIndex2((prevIndex) => prevIndex + 1);
+            if (currentVideoIndex + 1 >= items.length) {
+                setAllVideosPlayed(true);
+            }
+        };
+    };
+
+    const handleVideoEnd = () => {
+        setCurrentVideoIndex((prevIndex) => (prevIndex + 1 < items.length ? prevIndex + 1 : prevIndex));
+    };
 
     return (
         <div className="bgx3">
@@ -98,56 +126,55 @@ const VideoApp = () => {
                 </div>
             ) : (
                 <>
-                    {configCameraDone === false ? (
-                        <div className="min-h-screen flex items-center justify-center p-4 sm:p-10">
-                            <div className="flex flex-col w-full max-w-2xl">
-                                <div class="grid grid-cols-1 gap-6">
-                                    <div class="bg-white rounded-lg shadow-md p-6">
-                                        {isCameraOn ? (
-                                            <div className="h-96  bg-gray-600 flex justify-center items-center">
-                                                <Webcam
-                                                    className="max-h-full max-w-full"
-                                                    audio={false}
-                                                    ref={webcamRef}
-                                                    videoConstraints={{
-                                                        deviceId: selectedDevice,
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="h-96 bg-gray-600 flex justify-center items-center">
-                                                <p className="text-white text-center">Webcam Disabled</p>
-                                            </div>
-                                        )}
-                                        {devices.length > 0 && (
-                                            <div className="flex justify-center mt-4 ">
-                                                <select
-                                                    onChange={(e) => setSelectedDevice(e.target.value)}
-                                                    className="p-2 border rounded w-full"
-                                                >
-                                                    {devices.map((device, index) => (
-                                                        <option key={index} value={device.deviceId}>
-                                                            {`Camera ${index + 1}`}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-                                        <ul class="flex justify-center space-x-4 mt-4">
-                                            <li>
-                                                <button
-                                                    onClick={() => setIsCameraOn(!isCameraOn)}
-                                                    className="text-gray-500 hover:text-[#f230aa] text-6xl"
-                                                >
-                                                    {isCameraOn ? <AiFillVideoCamera /> : <AiOutlineVideoCamera />}
-                                                </button>
-                                            </li>
-                                        </ul>
-                                        <button disabled={!isCameraOn} className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${isCameraOn ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '}`} onClick={handleSetConfigCameraDone}>Done</button>
-                                    </div>
+                    <div className={`min-h-screen flex items-center justify-center p-4 sm:p-10 ${configCameraDone ? 'hidden' : ''}`}>
+                        <div className="flex flex-col w-full max-w-2xl">
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="bg-white rounded-lg shadow-md p-6">
+                                    {isCameraOn ? (
+                                        <div className="h-96  bg-gray-600 flex justify-center items-center">
+                                            <Webcam
+                                                className="max-h-full max-w-full"
+                                                audio={false}
+                                                ref={webcamRef}
+                                                videoConstraints={{
+                                                    deviceId: selectedDevice,
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="h-96 bg-gray-600 flex justify-center items-center">
+                                            <p className="text-white text-center">Webcam Disabled</p>
+                                        </div>
+                                    )}
+                                    {devices.length > 0 && (
+                                        <div className="flex justify-center mt-4 ">
+                                            <select
+                                                onChange={(e) => setSelectedDevice(e.target.value)}
+                                                className="p-2 border rounded w-full"
+                                            >
+                                                {devices.map((device, index) => (
+                                                    <option key={index} value={device.deviceId}>
+                                                        {`Camera ${index + 1}`}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                    <ul class="flex justify-center space-x-4 mt-4">
+                                        <li>
+                                            <button
+                                                onClick={() => setIsCameraOn(!isCameraOn)}
+                                                className="text-gray-500 hover:text-[#f230aa] text-6xl"
+                                            >
+                                                {isCameraOn ? <AiFillVideoCamera /> : <AiOutlineVideoCamera />}
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    <button disabled={!isCameraOn} className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${isCameraOn ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '}`} onClick={handleSetConfigCameraDone}>Done</button>
                                 </div>
                             </div>
-                        </div>) : (<></>)}
+                        </div>
+                    </div>
 
                     {(termsAndConditions === false && configCameraDone === true) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
@@ -207,7 +234,42 @@ const VideoApp = () => {
                         </div>
                     ) : (<></>)
                     }
+                    {(termsAndConditions === true && configCameraDone === true) ? (
+                        <div className={`grid md:grid-cols-2 h-screen w-screen`}>
 
+                            <div className="overflow-hidden w-full h-full">
+                                {items.map((video, index) => (
+                                    <video
+                                        key={index}
+                                        ref={(el) => (videoRefs.current[index] = el)}
+                                        src={video.url}
+                                        onEnded={() => {
+                                            handleVideoEnd();
+                                            videoRefs.current[index].classList.add('blur-sm');
+                                        }}
+                                        onPlay={() => {
+                                            videoRefs.current[index].classList.remove('blur-sm');
+                                        }}
+                                        className={`w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
+                                        style={{ ...video.style, transform: 'translate(-14%, 0%)' }}
+                                        onLoadedMetadata={() => {
+                                            console.log(video);
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            <div className="overflow-hidden w-full h-full flex justify-center items-center">
+                                <Webcam
+                                    className="min-w-fit min-h-full max-h-full max-w-full"
+                                    audio={false}
+                                    ref={webcamRef}
+                                    videoConstraints={{
+                                        deviceId: selectedDevice,
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    ) : (<></>)}
                 </>
 
 
