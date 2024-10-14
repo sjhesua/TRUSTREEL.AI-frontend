@@ -70,7 +70,11 @@
 .hover-grow {
   transition: transform 0.3s ease-in-out;
 }
-
+@supports (-o-object-fit: fill) {
+  #detach-button-host {
+    display: none !important;
+  }
+}
 @keyframes upDown {
   0%, 100% {
     transform: translateY(0);
