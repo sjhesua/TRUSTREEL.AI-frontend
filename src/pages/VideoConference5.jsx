@@ -137,13 +137,6 @@ const VideoApp = () => {
         }
     };
 
-    useEffect(() => {
-        if (webcamRef.current) {
-            webcamRef.current.video.srcObject.getTracks().forEach(track => track.stop());
-            webcamRef.current.video.srcObject = null;
-        }
-    }, [facingMode]);
-
     const handleCameraChange = (e) => {
         const newFacingMode = e.target.value;
         setFacingMode(newFacingMode);
