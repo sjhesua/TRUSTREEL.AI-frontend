@@ -165,7 +165,7 @@ const VideoApp = () => {
     }, [isSpeaking])
 
     return (
-        <div className="bgx3 h-auto">
+        <div className="bgx3 h-auto flex justify-center align-center">
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-screen">
                     <div className="up-down-animation">
@@ -265,28 +265,32 @@ const VideoApp = () => {
                 */}
                     {(configCameraDone === false) ? (
 
-                        <div className={`flex flex-wrap absolute w-full`}>
+                        <div className={`flex flex-wrap absolute w-full min-h-[100vh]`}>
                             <div className="w-full flex flex-col items-center justify-center">
-                                <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg max-h-screen max-w-screen overflow-auto">
+                                <div className="">
                                     <div className="bg-gray-500">
                                         {isCameraOn ? (
-                                            <Webcam
-                                                className="max-h-full max-w-full h-[18rem]"
-                                                audio={false}
-                                                ref={webcamRef}
-                                                videoConstraints={{
-                                                    deviceId: selectedDevice,
-                                                    width: { ideal: 1920 },
-                                                    height: { ideal: 1080 },
-                                                    frameRate: { ideal: 60 },
-                                                }}
-                                                disablePictureInPicture
-                                            />) :
+                                            <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
+                                                <Webcam
+                                                    className="h-[18rem] w-full"
+                                                    audio={false}
+                                                    ref={webcamRef}
+                                                    videoConstraints={{
+                                                        deviceId: selectedDevice,
+                                                        width: { ideal: 1920 },
+                                                        height: { ideal: 1080 },
+                                                        frameRate: { ideal: 60 },
+                                                    }}
+                                                    disablePictureInPicture
+                                                />
+                                            </div>) : (
                                             <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
                                                 <p className="text-white text-center">Webcam Disabled</p>
-                                            </div>}
+                                            </div>
+                                        )
+                                        }
                                     </div>
-                                    <div className="bg-white p-2 sm:p-6 flex items-center ">
+                                    <div className="bg-white p-2 sm:p-6 flex justify-center items-center">
                                         <button onClick={() => setIsCameraOn(!isCameraOn)} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
                                             {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
                                         </button>
@@ -294,7 +298,8 @@ const VideoApp = () => {
                                             {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
                                         </button>
                                     </div>
-                                    <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
+
+                                    <div className="bg-white p-2 flex flex-col sm:flex-row items-center">
                                         <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Camera:</label>
                                         {
                                             devices.length > 0 && (
@@ -314,6 +319,7 @@ const VideoApp = () => {
                                         }
 
                                     </div>
+
                                     <div className="bg-white p-2 flex items-center justify-around">
                                         <p>Are you ready to join?</p>
                                         <button disabled={!isCameraOn} onClick={handleSetConfigCameraDone} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
@@ -321,11 +327,10 @@ const VideoApp = () => {
                                             Join
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
-                        ////////////////////////////////
-
                     ) : (<></>)}
 
                     {(termsAndConditions === false && configCameraDone === true) ? (
@@ -435,8 +440,8 @@ const VideoApp = () => {
                         ref={webcamRef}
                         videoConstraints={{
                             deviceId: selectedDevice,
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 },
+                            width: { max: 9999 },
+                            height: { max: 9999 },
                             frameRate: { ideal: 60 },
                         }}
                     />
