@@ -33,6 +33,8 @@ const VideoApp = () => {
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
     const videoRefs = useRef([]);
     const [allVideosPlayed, setAllVideosPlayed] = useState(false);
+    //
+    const isMobile = window.innerWidth <= 768;
 
     //Filtra los dispositivos de video
     const handleDevices = useCallback((mediaDevices) => {
@@ -48,7 +50,7 @@ const VideoApp = () => {
     }, [devices]);
 
     useEffect(() => {
-        
+
         const fetchVideoQueues = async () => {
             try {
                 const response = await fetch(`${backendUrl}/videos/app/viedo-url?customeURL=${path}`);
@@ -127,6 +129,7 @@ const VideoApp = () => {
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
     const [showInitialButton, setShowInitialButton] = useState(true);
     const [respuestFinal, SetRespuestaFinal] = useState(false);
+    const [facingMode, setFacingMode] = useState("user");
 
     const startMic = () => {
         if (waveformRef.current) {
@@ -189,7 +192,7 @@ const VideoApp = () => {
             ) : (
 
                 <>
-                {/* 
+                    {/* 
                 <div className={`flex items-center justify-center p-2 sm:p-2`}>
                             <div className="flex flex-col ">
                                 <div class="flex align-center justify-center">
@@ -267,16 +270,26 @@ const VideoApp = () => {
                             </div>
                         </div>
                 */}
-                
-                
+
+
                     {(configCameraDone === false) ? (
 
                         <div className={`flex flex-wrap absolute w-full min-h-[100vh]`}>
                             <div className="w-full flex flex-col items-center justify-center">
                                 <div className="">
                                     <div className="bg-gray-500">
-                                        {isCameraOn ? (
-                                            <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
+
+                                        <div className={`h-[18rem] bg-gray-600 flex justify-center items-center ${isCameraOn ? '' : 'hidden'}`}>
+                                            {isMobile ? (
+                                                <Webcam
+                                                    className="h-[18rem] w-full"
+                                                    audio={false}
+                                                    ref={webcamRef}
+                                                    videoConstraints={{
+                                                        facingMode: facingMode,
+                                                    }}
+                                                />
+                                            ) : (
                                                 <Webcam
                                                     className="h-[18rem] w-full"
                                                     audio={false}
@@ -285,12 +298,12 @@ const VideoApp = () => {
                                                         deviceId: selectedDevice,
                                                     }}
                                                 />
-                                            </div>) : (
-                                            <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
-                                                <p className="text-white text-center">Webcam Disabled</p>
-                                            </div>
-                                        )
-                                        }
+                                            )}
+                                        </div>
+                                        <div className={`h-[18rem] bg-gray-600 flex justify-center items-center" ${isCameraOn ? 'hidden' : ''}`}>
+                                            <p className="text-white text-center flex justify-center items-center">Webcam Disabled</p>
+                                        </div>
+
                                     </div>
                                     <div className="bg-white p-2 sm:p-6 flex justify-center items-center">
                                         <button onClick={() => setIsCameraOn(!isCameraOn)} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
@@ -302,9 +315,9 @@ const VideoApp = () => {
                                     </div>
 
                                     <div className="bg-white p-2 flex flex-col sm:flex-row items-center">
-                                        <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Camera:</label>
+                                        <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0 mr-2">Camera:</label>
                                         {
-                                            devices.length > 0 && (
+                                            devices.length > 0 && !isMobile ? (
                                                 <select
                                                     id="cameraSelect"
                                                     onChange={(e) => setSelectedDevice(e.target.value)}
@@ -316,6 +329,19 @@ const VideoApp = () => {
                                                             {device.label || `Camera ${index + 1}`}
                                                         </option>
                                                     ))}
+                                                </select>
+                                            ) : (
+                                                <select
+                                                    id="cameraSelect"
+                                                    onChange={(e) => setFacingMode(e.target.value)}
+                                                    className="p-2 border rounded"
+                                                >    
+                                                   <option key={1} value={"user"}>
+                                                        Front Camera
+                                                    </option>
+                                                    <option key={2} value={"environment"}>
+                                                        Rear Camera
+                                                    </option>
                                                 </select>
                                             )
                                         }
@@ -334,7 +360,7 @@ const VideoApp = () => {
                             </div>
                         </div>
                     ) : (<></>)}
-                    
+
                     {(termsAndConditions === false && configCameraDone === true) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
                             <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
