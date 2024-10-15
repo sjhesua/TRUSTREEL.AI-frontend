@@ -302,7 +302,7 @@ const VideoApp = () => {
                                                         audio={false}
                                                         ref={webcamRef}
                                                         videoConstraints={{
-                                                            facingMode: "user",
+                                                            facingMode: { exact: "user" }
                                                         }}
                                                     />
                                                 ) : (
@@ -311,7 +311,7 @@ const VideoApp = () => {
                                                         audio={false}
                                                         ref={webcamRef}
                                                         videoConstraints={{
-                                                            facingMode: "environment",
+                                                            facingMode:  { exact: "environment" }
                                                         }}
                                                     />
                                                 )}
