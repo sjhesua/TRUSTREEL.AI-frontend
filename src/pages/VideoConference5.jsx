@@ -137,6 +137,18 @@ const VideoApp = () => {
         }
     };
 
+    useEffect(() => {
+        if (webcamRef.current) {
+            webcamRef.current.video.srcObject.getTracks().forEach(track => track.stop());
+            webcamRef.current.video.srcObject = null;
+        }
+    }, [facingMode]);
+
+    const handleCameraChange = (e) => {
+        const newFacingMode = e.target.value;
+        setFacingMode(newFacingMode);
+    };
+
     const toggleMicrophone = () => {
         if (waveformRef.current) {
             try {
@@ -333,11 +345,7 @@ const VideoApp = () => {
                                             ) : (
                                                 <select
                                                     id="cameraSelect"
-                                                    onChange={(e) => {
-                                                        const newFacingMode = e.target.value;
-                                                        setFacingMode(newFacingMode);
-                                                        alert(newFacingMode);
-                                                    }}
+                                                    onChange={handleCameraChange}
                                                     className="p-2 border rounded"
                                                 >    
                                                    <option value={"user"}>
