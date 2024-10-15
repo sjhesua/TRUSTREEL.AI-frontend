@@ -39,9 +39,6 @@ const VideoApp = () => {
         setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
     }, [])
     //Al iniciar la camara se obtienen los dispositivos
-    useEffect(() => {
-        navigator.mediaDevices.enumerateDevices().then(handleDevices);
-    }, [])
     //Optenemos 
     //VIDEOS
     useEffect(() => {
@@ -51,6 +48,7 @@ const VideoApp = () => {
     }, [devices]);
 
     useEffect(() => {
+        
         const fetchVideoQueues = async () => {
             try {
                 const response = await fetch(`${backendUrl}/videos/app/viedo-url?customeURL=${path}`);
@@ -72,6 +70,7 @@ const VideoApp = () => {
     const [isLoading, setIsLoading] = useState(true);
     //simulacion de carga
     useEffect(() => {
+        navigator.mediaDevices.enumerateDevices().then(handleDevices);
         const baseUrl = "/app/";
         const currentPath = location.pathname;
         if (currentPath.startsWith(baseUrl)) {
@@ -284,11 +283,7 @@ const VideoApp = () => {
                                                     ref={webcamRef}
                                                     videoConstraints={{
                                                         deviceId: selectedDevice,
-                                                        width: { ideal: 1920 },
-                                                        height: { ideal: 1080 },
-                                                        frameRate: { ideal: 60 },
                                                     }}
-                                                    disablePictureInPicture
                                                 />
                                             </div>) : (
                                             <div className="h-[18rem] bg-gray-600 flex justify-center items-center">
