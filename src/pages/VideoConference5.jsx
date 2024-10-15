@@ -295,14 +295,27 @@ const VideoApp = () => {
                                                     }}
                                                 />
                                             ) : (
-                                                <Webcam
-                                                    className="h-[18rem] w-full"
-                                                    audio={false}
-                                                    ref={webcamRef}
-                                                    videoConstraints={{
-                                                        deviceId: selectedDevice,
-                                                    }}
-                                                />
+                                                <>
+                                                {facingMode === "user" ? (
+                                                    <Webcam
+                                                        className="h-[18rem] w-full"
+                                                        audio={false}
+                                                        ref={webcamRef}
+                                                        videoConstraints={{
+                                                            facingMode: "user",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <Webcam
+                                                        className="h-[18rem] w-full"
+                                                        audio={false}
+                                                        ref={webcamRef}
+                                                        videoConstraints={{
+                                                            facingMode: "environment",
+                                                        }}
+                                                    />
+                                                )}
+                                                </>
                                             )}
                                         </div>
                                         <div className={`h-[18rem] bg-gray-600 flex justify-center items-center" ${isCameraOn ? 'hidden' : ''}`}>
