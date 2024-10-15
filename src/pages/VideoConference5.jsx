@@ -333,13 +333,16 @@ const VideoApp = () => {
                                             ) : (
                                                 <select
                                                     id="cameraSelect"
-                                                    onChange={(e) => setFacingMode(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setFacingMode(e.target.value);
+                                                        console.log(e.target.value);
+                                                    }}
                                                     className="p-2 border rounded"
                                                 >    
-                                                   <option key={1} value={"user"}>
+                                                   <option value={"user"}>
                                                         Front Camera
                                                     </option>
-                                                    <option key={2} value={"environment"}>
+                                                    <option value={"environment"}>
                                                         Rear Camera
                                                     </option>
                                                 </select>
