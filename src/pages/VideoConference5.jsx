@@ -44,6 +44,11 @@ const VideoApp = () => {
     }, [])
     //Optenemos 
     //VIDEOS
+    useEffect(() => {
+        if (devices.length > 0) {
+            setSelectedDevice(devices[0].deviceId);
+        }
+    }, [devices]);
 
     useEffect(() => {
         const fetchVideoQueues = async () => {
@@ -185,7 +190,7 @@ const VideoApp = () => {
             ) : (
 
                 <>
-                   
+                {/* 
                 <div className={`flex items-center justify-center p-2 sm:p-2`}>
                             <div className="flex flex-col ">
                                 <div class="flex align-center justify-center">
@@ -262,8 +267,9 @@ const VideoApp = () => {
                                 </div>
                             </div>
                         </div>
+                */}
                 
-                {/*
+                
                     {(configCameraDone === false) ? (
 
                         <div className={`flex flex-wrap absolute w-full min-h-[100vh]`}>
@@ -333,7 +339,7 @@ const VideoApp = () => {
                             </div>
                         </div>
                     ) : (<></>)}
-                    */}
+                    
                     {(termsAndConditions === false && configCameraDone === true) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
                             <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
