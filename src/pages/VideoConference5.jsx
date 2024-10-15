@@ -334,8 +334,9 @@ const VideoApp = () => {
                                                 <select
                                                     id="cameraSelect"
                                                     onChange={(e) => {
-                                                        setFacingMode(e.target.value);
-                                                        alert(facingMode);
+                                                        const newFacingMode = e.target.value;
+                                                        setFacingMode(newFacingMode);
+                                                        alert(newFacingMode);
                                                     }}
                                                     className="p-2 border rounded"
                                                 >    
