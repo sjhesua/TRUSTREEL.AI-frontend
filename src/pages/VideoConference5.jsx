@@ -33,8 +33,6 @@ const VideoApp = () => {
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
     const videoRefs = useRef([]);
     const [allVideosPlayed, setAllVideosPlayed] = useState(false);
-    //
-    const isMobile = window.innerWidth <= 768;
 
     //Filtra los dispositivos de video
     const handleDevices = useCallback((mediaDevices) => {
@@ -73,6 +71,22 @@ const VideoApp = () => {
     //simulacion de carga
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
+
+        const updateDevices = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                setDevices(videoDevices);
+                stream.getTracks().forEach(track => track.stop()); // Detener el stream para liberar la cámara
+            } catch (err) {
+                console.error('Error accessing media devices.', err);
+            }
+        };
+
+        updateDevices();
+
+
         const baseUrl = "/app/";
         const currentPath = location.pathname;
         if (currentPath.startsWith(baseUrl)) {
@@ -89,14 +103,15 @@ const VideoApp = () => {
 
     const handleSetConfigCameraDone = () => {
         setConfigCameraDone(true)
+        startMic();
+        playNextVideo();
     }
 
     const handleSetTermsAndConditions = () => {
         setTermsAndConditions(true)
         setShowInitialButton(false);
         //startRecording();
-        startMic();
-        playNextVideo();
+
 
     }
     //xxxxxxx
@@ -137,11 +152,6 @@ const VideoApp = () => {
         }
     };
 
-    const handleCameraChange = (e) => {
-        const newFacingMode = e.target.value;
-        setFacingMode(newFacingMode);
-    };
-
     const toggleMicrophone = () => {
         if (waveformRef.current) {
             try {
@@ -177,7 +187,7 @@ const VideoApp = () => {
     }, [isSpeaking])
 
     return (
-        <div className="bgx3 h-auto flex justify-center align-center">
+        <div className="bgx3">
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-screen">
                     <div className="up-down-animation">
@@ -195,135 +205,34 @@ const VideoApp = () => {
                     </div>
                 </div>
             ) : (
-
                 <>
-                    {/* 
-                <div className={`flex items-center justify-center p-2 sm:p-2`}>
-                            <div className="flex flex-col ">
-                                <div class="flex align-center justify-center">
-                                    <div></div>
-                                    <div className="bg-white p-2 shadow-md animate__animated animate__fadeIn rounded-lg" style={{ animationDelay: "0.9s" }}>
-                                        {isCameraOn ? (
-                                                <Webcam
-                                                    className="max-h-full max-w-full"
-                                                    audio={false}
-                                                    ref={webcamRef}
-                                                    videoConstraints={{
-                                                        deviceId: selectedDevice,
-                                                        width: { ideal: 1920 },
-                                                        height: { ideal: 1080 },
-                                                        frameRate: { ideal: 60 },
-                                                    }}
-                                                    disablePictureInPicture
-                                                />
-                                            
-                                        ) : (
-                                            <div className="h-[16rem] bg-gray-600 flex justify-center items-center">
-                                                <p className="text-white text-center">Webcam Disabled</p>
-                                            </div>
-                                        )}
-                                        <div className="bg-white p-2 flex flex-col sm:flex-row items-center justify-around">
-                                            <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0">Camera:</label>
-                                            {
-                                                devices.length > 0 && (
-                                                    <select
-                                                        id="cameraSelect"
-                                                        onChange={(e) => setSelectedDevice(e.target.value)}
-                                                        className="p-2 border rounded"
-                                                    >
+                    {(configCameraDone === false && termsAndConditions === true) ? (
+                        <>
+                            <div className="flex items-center justify-center min-h-screen py-12">
+                                <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
 
-                                                        {devices.map((device, index) => (
-                                                            <option key={index} value={device.deviceId}>
-                                                                {device.label || `Camera ${index + 1}`}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )
-                                            }
+                                    {/*<!-- Row 1: Video/Text Container -->*/}
 
+                                    <div className="flex justify-center items-center h-64 w-[22rem] bg-gray-100 rounded-lg overflow-hidden">
+                                        {/*<!-- Replace this <video> or <p> with actual video or text -->*/}
+                                        <div className="relative w-full h-full">
+                                            <Webcam
+                                                className={`absolute inset-0 w-full h-full object-cover ${isCameraOn ? '' : 'hidden'}`}
+                                                audio={false}
+                                                ref={webcamRef}
+                                                videoConstraints={{
+                                                    deviceId: selectedDevice,
+                                                }}
+                                            />
+                                            <p className={`absolute inset-0 flex items-center justify-center text-gray-700 text-lg ${isCameraOn ? 'hidden' : ''}`}>Centered Text</p>
                                         </div>
-                                        
-                                        <ul class="flex justify-center space-x-4 mt-4">
-                                            <li>
-                                                <button
-                                                    onClick={() => setIsCameraOn(!isCameraOn)}
-                                                    className="text-white text-4xl mb-2 bg-[#f230aa] rounded-full p-2"
-                                                >
-                                                    {isCameraOn ? <AiFillVideoCamera /> : <AiOutlineVideoCamera />}
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <button
-                                                    onClick={() => setIsCameraOn(!isCameraOn)}
-                                                    className="text-white text-4xl mb-2 bg-[#f230aa] rounded-full p-2"
-                                                >
-                                                    {isCameraOn ? <AiFillAudio /> : <AiFillAudio />}
-                                                </button>
-                                            </li>
-                                        </ul>
-                                        <div className="bg-white p-2 flex items-center justify-around">
-                                            <p>Are you ready to join?</p>
-                                            <button disabled={!isCameraOn} onClick={handleSetConfigCameraDone} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
-                                                }`}>
-                                                Join
-                                            </button>
-                                        </div>
-
+                                        {/*
+                                    <!-- If you want text instead of video, uncomment this and remove the video tag -->
+                                    <!--  -->
+                                    */}
                                     </div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                */}
-
-
-                    {(configCameraDone === false) ? (
-
-                        <div className={`flex flex-wrap absolute w-full min-h-[100vh]`}>
-                            <div className="w-full flex flex-col items-center justify-center">
-                                <div className="">
-                                    <div className="bg-gray-500">
-
-                                        <div className={`h-[18rem] bg-gray-600 flex justify-center items-center ${isCameraOn ? '' : 'hidden'}`}>
-                                            {isMobile ? (
-                                                <Webcam
-                                                    className="h-[18rem] w-full"
-                                                    audio={false}
-                                                    ref={webcamRef}
-                                                    videoConstraints={{
-                                                        facingMode: facingMode,
-                                                    }}
-                                                />
-                                            ) : (
-                                                <>
-                                                {facingMode === "user" ? (
-                                                    <Webcam
-                                                        className="h-[18rem] w-full"
-                                                        audio={false}
-                                                        ref={webcamRef}
-                                                        videoConstraints={{
-                                                            facingMode: { exact: "user" }
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <Webcam
-                                                        className="h-[18rem] w-full"
-                                                        audio={false}
-                                                        ref={webcamRef}
-                                                        videoConstraints={{
-                                                            facingMode:  { exact: "environment" }
-                                                        }}
-                                                    />
-                                                )}
-                                                </>
-                                            )}
-                                        </div>
-                                        <div className={`h-[18rem] bg-gray-600 flex justify-center items-center" ${isCameraOn ? 'hidden' : ''}`}>
-                                            <p className="text-white text-center flex justify-center items-center">Webcam Disabled</p>
-                                        </div>
-
-                                    </div>
-                                    <div className="bg-white p-2 sm:p-6 flex justify-center items-center">
+                                    {/*<!-- Row 2: Two Buttons -->*/}
+                                    <div className="flex justify-left space-x-4">
                                         <button onClick={() => setIsCameraOn(!isCameraOn)} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
                                             {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
                                         </button>
@@ -332,54 +241,37 @@ const VideoApp = () => {
                                         </button>
                                     </div>
 
-                                    <div className="bg-white p-2 flex flex-col sm:flex-row items-center">
-                                        <label htmlFor="cameraSelect" className="block mb-2 sm:mb-0 mr-2">Camera:</label>
-                                        {
-                                            devices.length > 0 && !isMobile ? (
-                                                <select
-                                                    id="cameraSelect"
-                                                    onChange={(e) => setSelectedDevice(e.target.value)}
-                                                    className="p-2 border rounded"
-                                                >
-
-                                                    {devices.map((device, index) => (
-                                                        <option key={index} value={device.deviceId}>
-                                                            {device.label || `Camera ${index + 1}`}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <select
-                                                    id="cameraSelect"
-                                                    onChange={handleCameraChange}
-                                                    className="p-2 border rounded"
-                                                >    
-                                                   <option value={"user"}>
-                                                        Front Camera
+                                    {/*<!-- Row 3: Select Box -->*/}
+                                    <div>
+                                        {devices.length > 0 && (
+                                            <select
+                                                onChange={(e) => setSelectedDevice(e.target.value)}
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200">
+                                                {devices.map((device, index) => (
+                                                    <option key={index} value={device.deviceId}>
+                                                        {device.label || `Camera ${index + 1}`}
                                                     </option>
-                                                    <option value={"environment"}>
-                                                        Rear Camera
-                                                    </option>
-                                                </select>
-                                            )
+                                                ))}
+                                            </select>)
                                         }
-
                                     </div>
 
-                                    <div className="bg-white p-2 flex items-center justify-around">
-                                        <p>Are you ready to join?</p>
-                                        <button disabled={!isCameraOn} onClick={handleSetConfigCameraDone} className={`relative w-40 h-10 rounded-full border border-4 ${!isCameraOn ? 'border-gray-400 text-gray-400 cursor-not-allowed' : 'border-[#f230aa] text-[#f230aa]'
-                                            }`}>
+                                    {/*<!-- Row 4: Label and Button -->*/}
+                                    <div className="flex justify-between items-center">
+                                        <label for="inputField" className="text-gray-700">Are you ready to join?</label>
+                                        <button
+                                            disabled={!isCameraOn}
+                                            onClick={handleSetConfigCameraDone}
+                                            className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-[#f230aa] hover:bg-[#f46bbd]">
                                             Join
                                         </button>
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
+                        </>
                     ) : (<></>)}
 
-                    {(termsAndConditions === false && configCameraDone === true) ? (
+                    {(termsAndConditions === false && configCameraDone === false) ? (
                         <div className={`flex flex-wrap h-screen absolute`}>
                             <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
@@ -405,14 +297,14 @@ const VideoApp = () => {
                                                         <p className="text-sm text-white">
                                                             After you accept our terms, just click the Start Recording button.
                                                         </p>
-                                                        <div class="flex items-center mb-4 pt-2">
+                                                        <div className="flex items-center mb-4 pt-2">
                                                             <input
                                                                 id="default-checkbox"
                                                                 type="checkbox"
                                                                 checked={isChecked}
                                                                 onChange={(e) => setIsChecked(e.target.checked)}
-                                                                class="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                            <label for="default-checkbox" class="ms-2 text-sm font-medium text-white select-none">
+                                                                className="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                            <label for="default-checkbox" className="ms-2 text-sm font-medium text-white select-none">
                                                                 Accept Terms and Conditions. Basically we can use the recording in social networks, emails, etc. <a href='#' className='text-[#f230aa] font-bold'> Link to T&C</a>
                                                             </label>
                                                         </div>
@@ -457,76 +349,86 @@ const VideoApp = () => {
                     ) : (<></>)}
                 </>
             )}
-            <div className={`grid md:grid-cols-2 h-screen w-screen ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(allVideosPlayed === true) ? "hidden" : ""}`}>
-                <div className="overflow-hidden w-full h-full">
-                    {items.map((video, index) => (
-                        <video
-                            key={index}
-                            ref={(el) => (videoRefs.current[index] = el)}
-                            src={video.url}
-                            onEnded={() => {
-                                handleVideoEnd();
-                                videoRefs.current[index].classList.add('blur-sm');
-                            }}
-                            onPlay={() => {
-                                videoRefs.current[index].classList.remove('blur-sm');
-                            }}
-                            className={`w-[150%] h-[150%] min-h-[50vh] max-w-none max-h-none object-cover ${index === currentVideoIndex ? 'block' : 'hidden'} blur-sm`}
-                            style={{ ...video.style, transform: 'translate(-14%, 0%)' }}
-                            onLoadedMetadata={() => {
-                                console.log(video);
+            <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(allVideosPlayed === true) ? "hidden" : ""}`}>
+                <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
+
+                    <div className="absolute top-4 left-4 w-1/5 aspect-square z-10">
+                        <div className="flex items-center justify-center w-full h-full">
+                            {items.map((video, index) => (
+                                <video
+                                    key={index}
+                                    ref={(el) => (videoRefs.current[index] = el)}
+                                    src={video.url}
+                                    onEnded={() => {
+                                        handleVideoEnd();
+                                        //videoRefs.current[index].classList.add('blur-sm');
+                                    }}
+                                    onPlay={() => {
+                                        //videoRefs.current[index].classList.remove('blur-sm');
+                                    }}
+                                    className={`max-w-full max-h-full rounded-lg shadow-md ${index === currentVideoIndex ? 'block' : 'hidden'}`}
+                                    style={{ ...video.style }}
+                                    onLoadedMetadata={() => {
+                                        console.log(video);
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+
+                    <div className="relative w-full rounded-lg overflow-hidden ">
+
+                        <Webcam
+                            className="w-full h-full object-cover md:object-contain"
+                            audio={false}
+                            ref={webcamRef}
+                            videoConstraints={{
+                                deviceId: selectedDevice,
+                                width: { max: 9999 },
+                                height: { max: 9999 },
+                                frameRate: { ideal: 60 },
                             }}
                         />
-                    ))}
-                </div>
-                <div className="overflow-hidden w-full h-full flex justify-center items-center">
-                    <Webcam
-                        className="min-w-fit min-h-full max-h-full max-w-full"
-                        audio={false}
-                        ref={webcamRef}
-                        videoConstraints={{
-                            deviceId: selectedDevice,
-                            width: { max: 9999 },
-                            height: { max: 9999 },
-                            frameRate: { ideal: 60 },
-                        }}
-                    />
 
-                    <div className='flex absolute items-center bottom-5 right-5 z-20'>
-                        <div>
-                            <button
-                                className={`mr-2 ${isMicrophoneActive ? 'bg-gray-600 hover:bg-gray-600 h-10 w-10' : 'bg-[#f230aa] hover:bg-[#f46bbd] w-10 h-10'} text-white p-3 shadow-lg rounded-full flex items-center justify-center`}
-                                onClick={toggleMicrophone}
-                            >
-                                {isMicrophoneActive ? (
-                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                        <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                ) : (
-                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                        <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                )}
-                            </button>
-                        </div>
-                        <div>
-                            <Waveform
-                                ref={waveformRef}
-                                isSpeaking={isSpeaking}
-                                setIsSpeaking={setIsSpeaking}
-                                silentSeconds={silentSeconds}
-                                setSilentSeconds={setSilentSeconds}
-                                audioStarted={audioStarted}
-                                setAudioStarted={setAudioStarted}
-                            />
-                            <button
-                                className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
-                                style={{
-                                    background: `linear-gradient(to right, #f230aa ${silentSeconds * 25}%, transparent 0%)`
-                                }}
-                            >
-                                {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
-                            </button>
+                        <div className="absolute bottom-4 right-4">
+                            <div className='flex absolute items-center bottom-5 right-5 z-20'>
+                                <div>
+                                    <button
+                                        className={`mr-2 ${isMicrophoneActive ? 'bg-gray-600 hover:bg-gray-600 h-10 w-10' : 'bg-[#f230aa] hover:bg-[#f46bbd] w-10 h-10'} text-white p-3 shadow-lg rounded-full flex items-center justify-center`}
+                                        onClick={toggleMicrophone}
+                                    >
+                                        {isMicrophoneActive ? (
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                                <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                        ) : (
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                                <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
+                                <div>
+                                    <Waveform
+                                        ref={waveformRef}
+                                        isSpeaking={isSpeaking}
+                                        setIsSpeaking={setIsSpeaking}
+                                        silentSeconds={silentSeconds}
+                                        setSilentSeconds={setSilentSeconds}
+                                        audioStarted={audioStarted}
+                                        setAudioStarted={setAudioStarted}
+                                    />
+                                    <button
+                                        className='text-[#fbd8e7] relative w-40 h-10 rounded-full border border-4 border-[#f230aa]'
+                                        style={{
+                                            background: `linear-gradient(to right, #f230aa ${silentSeconds * 25}%, transparent 0%)`
+                                        }}
+                                    >
+                                        {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

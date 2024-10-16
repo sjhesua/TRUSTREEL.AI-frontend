@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      gridTemplateRows: {
+        '20-80': '20% 80%',
+      },
       zIndex: {
         '60': '60',
         '70': '70',
