@@ -70,11 +70,11 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
         analyser.getByteTimeDomainData(dataArray);
     
         // Usar color de fondo transparente
-        canvasCtx.fillStyle = 'rgb(255, 255, 255)'; // Fondo transparente
+        canvasCtx.fillStyle = 'rgb(40, 41, 43)'; // Fondo transparente
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height); // Rectángulo invisible
     
         canvasCtx.lineWidth = 2;
-        canvasCtx.strokeStyle = 'rgb(242, 48, 170)';
+        canvasCtx.strokeStyle = 'rgb(68, 142, 254)';
     
         canvasCtx.beginPath();
     
@@ -132,7 +132,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
 
     return (
         <>
-            <canvas ref={canvasRef} className='absolute w-40 h-10 rounded-full' onClick={toggleMic} />
+            <canvas ref={canvasRef} className='absolute w-40 h-10 rounded-md text-white' onClick={toggleMic} />
         </>
     );
 });

@@ -29,6 +29,10 @@ module.exports = {
           800: '#004d80',
           900: '#002e4d',
         },
+        base: 'rgb(40, 41, 43)',
+        danger: 'rgb(217, 81, 65)',
+        good: 'rgb(68, 142, 254)',
+        fondo:'rgb(27, 27, 29)',
       },
       keyframes: {
         loading: {

@@ -33,7 +33,7 @@ const VideoApp = () => {
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
     const videoRefs = useRef([]);
     const [allVideosPlayed, setAllVideosPlayed] = useState(false);
-    
+
     //Filtra los dispositivos de video
     const handleDevices = useCallback((mediaDevices) => {
         setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
@@ -46,22 +46,22 @@ const VideoApp = () => {
             setSelectedDevice(devices[0].deviceId);
         }
     }, [devices]);
-    
+
     const requestPermissions = async () => {
-      
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-          if (webcamRef.current) {
-            webcamRef.current.srcObject = stream;
-          }
+            if (webcamRef.current) {
+                webcamRef.current.srcObject = stream;
+            }
         } catch (error) {
-          console.error('Permission denied', error);
-        
+            console.error('Permission denied', error);
+
         }
-      };
+    };
 
     useEffect(() => {
-       
+
 
         const fetchVideoQueues = async () => {
             try {
@@ -83,12 +83,19 @@ const VideoApp = () => {
 
     const [isLoading, setIsLoading] = useState(true);
     //simulacion de carga
-    
+    const [hasVideoPermission, setHasVideoPermission] = useState(false);
 
     useEffect(() => {
+        navigator.permissions.query({ name: 'camera' }).then((permissionStatus) => {
+            setHasVideoPermission(permissionStatus.state === 'granted');
+            permissionStatus.onchange = () => {
+                setHasVideoPermission(permissionStatus.state === 'granted');
+            };
+        });
+
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
         requestPermissions();
-        
+
         const updateDevices = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -225,7 +232,7 @@ const VideoApp = () => {
                 <>
                     {(configCameraDone === false && termsAndConditions === true) ? (
                         <>
-                            <div className="flex items-center justify-center min-h-screen py-12">
+                            <div className="flex items-center justify-center min-h-screen py-12 bg-pepe">
                                 <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
 
                                     {/*<!-- Row 1: Video/Text Container -->*/}
@@ -277,7 +284,7 @@ const VideoApp = () => {
                                     <div className="flex justify-between items-center">
                                         <label for="inputField" className="text-gray-700">Are you ready to join?</label>
                                         <button
-                                            disabled={!isCameraOn}
+                                            disabled={!isCameraOn && !hasVideoPermission}
                                             onClick={handleSetConfigCameraDone}
                                             className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-[#f230aa] hover:bg-[#f46bbd]">
                                             Join
@@ -320,7 +327,7 @@ const VideoApp = () => {
                                                                 type="checkbox"
                                                                 checked={isChecked}
                                                                 onChange={(e) => { setIsChecked(e.target.checked); }}
-                                                                onClick={ requestPermissions}
+                                                                onClick={requestPermissions}
                                                                 className="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                                             <label for="default-checkbox" className="ms-2 text-sm font-medium text-white select-none">
                                                                 Accept Terms and Conditions. Basically we can use the recording in social networks, emails, etc. <a href='#' className='text-[#f230aa] font-bold'> Link to T&C</a>
@@ -367,11 +374,11 @@ const VideoApp = () => {
                     ) : (<></>)}
                 </>
             )}
-            <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
+            <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
                 <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
 
                     <div className="absolute top-4 left-4 w-[36%] z-10">
-                        <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh]" >
+                        <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md" >
                             {items.map((video, index) => (
                                 <video
                                     key={index}
@@ -384,7 +391,7 @@ const VideoApp = () => {
                                     onPlay={() => {
                                         //videoRefs.current[index].classList.remove('blur-sm');
                                     }}
-                                    className={`max-w-full max-h-full rounded-lg shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'}`}
+                                    className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'}`}
                                     style={{ ...video.style }}
                                     onLoadedMetadata={() => {
                                         console.log(video);
@@ -393,12 +400,9 @@ const VideoApp = () => {
                             ))}
                         </div>
                     </div>
-
-
-                    <div className="relative w-full rounded-lg overflow-hidden min-h-screen">
-
+                    <div className="relative w-full rounded-lg overflow-hidden min-h-screen lg:min-h-0">
                         <Webcam
-                            className="w-full h-full object-cover md:object-contain min-h-screen"
+                            className="w-full h-full object-cover md:object-contain min-h-screen lg:min-h-0"
                             audio={false}
                             ref={webcamRef}
                             videoConstraints={{
@@ -408,7 +412,52 @@ const VideoApp = () => {
                                 frameRate: { ideal: 60 },
                             }}
                         />
-
+                        <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
+                            <div className="col-span-1 flex items-center justify-center"></div>
+                            <div className="col-span-1 flex items-center justify-center">
+                                <button
+                                    className={`mr-2 ${isMicrophoneActive ? 'bg-danger h-10 w-10' : 'bg-good  w-10 h-10'} text-white p-3 shadow-lg rounded-md flex items-center justify-center`}
+                                    onClick={toggleMicrophone}
+                                >
+                                    {isMicrophoneActive ? (
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                            <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    ) : (
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    )}
+                                </button>
+                                <div>
+                                    <Waveform
+                                        ref={waveformRef}
+                                        isSpeaking={isSpeaking}
+                                        setIsSpeaking={setIsSpeaking}
+                                        silentSeconds={silentSeconds}
+                                        setSilentSeconds={setSilentSeconds}
+                                        audioStarted={audioStarted}
+                                        setAudioStarted={setAudioStarted}
+                                    />
+                                    <button
+                                        className='text-white relative w-40 h-10 rounded-md'
+                                        style={{
+                                            background: `linear-gradient(to right, rgb(68, 142, 254) ${silentSeconds * 25}%, transparent 0%)`
+                                        }}
+                                    >
+                                        {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="col-span-1 flex items-center justify-end">
+                            <button
+                                        className='text-white relative w-40 h-10 rounded-md bg-danger'
+                                    >
+                                        Leave Meet
+                                    </button>
+                            </div>
+                        </div>
+                        {/*
                         <div className="absolute bottom-4 right-4">
                             <div className='flex absolute items-center bottom-5 right-5 z-20'>
                                 <div>
@@ -448,6 +497,7 @@ const VideoApp = () => {
                                 </div>
                             </div>
                         </div>
+                        */}
                     </div>
                 </div>
             </div>
