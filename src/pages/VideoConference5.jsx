@@ -211,7 +211,7 @@ const VideoApp = () => {
     }, [isSpeaking])
 
     return (
-        <div className="bgx3">
+        <div className="bg-fondo">
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-screen">
                     <div className="up-down-animation">
@@ -232,7 +232,7 @@ const VideoApp = () => {
                 <>
                     {(configCameraDone === false && termsAndConditions === true) ? (
                         <>
-                            <div className="flex items-center justify-center min-h-screen py-12 bg-pepe">
+                            <div className="flex items-center justify-center min-h-screen  py-12 bg-pepe">
                                 <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
 
                                     {/*<!-- Row 1: Video/Text Container -->*/}
@@ -257,10 +257,10 @@ const VideoApp = () => {
                                     </div>
                                     {/*<!-- Row 2: Two Buttons -->*/}
                                     <div className="flex justify-left space-x-4">
-                                        <button onClick={() => setIsCameraOn(!isCameraOn)} className="mr-2 w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                        <button onClick={() => setIsCameraOn(!isCameraOn)} className={`mr-2 w-12 h-12 text-white rounded flex items-center justify-center ${isCameraOn ? 'bg-good':'bg-danger'}`}>
                                             {isCameraOn ? <AiFillVideoCamera className="" /> : <AiOutlineVideoCamera />}
                                         </button>
-                                        <button onClick={toggleMicrophone} className="w-12 h-12 bg-gray-500 text-white rounded flex items-center justify-center">
+                                        <button onClick={toggleMicrophone} className={`w-12 h-12 text-white rounded flex items-center justify-center ${isMicrophoneActive ? 'bg-good':'bg-danger'}`}>
                                             {isMicrophoneActive ? <AiFillAudio /> : <AiOutlineAudio />}
                                         </button>
                                     </div>
@@ -286,7 +286,7 @@ const VideoApp = () => {
                                         <button
                                             disabled={!isCameraOn && !hasVideoPermission}
                                             onClick={handleSetConfigCameraDone}
-                                            className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-[#f230aa] hover:bg-[#f46bbd]">
+                                            className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-base hover:bg-good">
                                             Join
                                         </button>
                                     </div>
@@ -296,12 +296,11 @@ const VideoApp = () => {
                     ) : (<></>)}
 
                     {(termsAndConditions === false && configCameraDone === false) ? (
-                        <div className={`flex flex-wrap h-screen absolute`}>
+                        <div className={`flex flex-wrap h-screen absolute bg-fondo`}>
                             <div className="w-full h-1/2 md:w-1/2 md:h-full md:p-20 animate__animated animate__fadeInUp">
                                 <div className='flex flex-col items-center justify-center h-full'>
                                     <p className='p-10 text-white'>
-                                        Gracias por tu interés en dar feedback sobre la charla que dio Gonzalo Arzuaga en tu grupo Vistage. Te voy a hacer 3 preguntas cortitas acerca de como fue tu experiencia para compartir con otros coordinadores que estén buscando un expositor para sus grupos.
-                                        Ah…
+                                    Thank you for your interest in providing feedback on the talk given by Gonzalo Arzuaga in your Vistage group. I’m going to ask you 3 short questions about your experience to share with other coordinators who may be looking for a speaker for their groups. Ah…
                                     </p>
                                 </div>
                             </div>
@@ -340,7 +339,7 @@ const VideoApp = () => {
                                         <div className="px-4 py-3 flex flex-col sm:px-6">
                                             <button
                                                 type="button"
-                                                className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
+                                                className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'bg-good' : 'bg-base cursor-not-allowed '
                                                     }`}
                                                 disabled={!isChecked}
                                                 onClick={handleSetTermsAndConditions}
@@ -450,11 +449,12 @@ const VideoApp = () => {
                                 </div>
                             </div>
                             <div className="col-span-1 flex items-center justify-end">
-                            <button
-                                        className='text-white relative w-40 h-10 rounded-md bg-danger'
-                                    >
-                                        Leave Meet
-                                    </button>
+                            <Link
+                            to="/"
+                            className='flex items-center justify-center text-white relative w-40 h-10 rounded-md bg-danger'
+                            >
+                                Leave Meet
+                            </Link>
                             </div>
                         </div>
                         {/*
