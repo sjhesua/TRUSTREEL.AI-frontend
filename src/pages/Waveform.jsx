@@ -32,10 +32,10 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
         } catch (err) {
             if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                 console.error("Permisos denegados para el micrófono: ", err);
-                alert("Permisos denegados. Por favor, permite el acceso al micrófono en la configuración de tu navegador.");
+
             } else {
                 console.error("Error al configurar el audio: ", err);
-                alert("Ocurrió un error al configurar el audio. Por favor, inténtalo de nuevo.");
+               
             }
         }
     };

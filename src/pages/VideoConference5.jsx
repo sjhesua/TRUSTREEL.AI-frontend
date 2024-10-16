@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
-import VideoPlayer from './videoPlayer';
+
 import Webcam from "react-webcam";
 import Waveform from './Waveform';
 import { Link } from 'react-router-dom';
@@ -209,7 +209,7 @@ const VideoApp = () => {
                     {(configCameraDone === false && termsAndConditions === true) ? (
                         <>
                             <div className="flex items-center justify-center min-h-screen py-12">
-                                <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
+                                <div className="max-w-lg mx-auto p-6 rounded-lg shadow-md space-y-6 md:max-w-lg">
 
                                     {/*<!-- Row 1: Video/Text Container -->*/}
 
@@ -350,7 +350,7 @@ const VideoApp = () => {
                 </>
             )}
             <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
+                <div className="relative w-full max-w-4xl rounded-lg shadow-md">
 
                     <div className="absolute top-4 left-4 w-[36%] z-10">
                         <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh]" >
