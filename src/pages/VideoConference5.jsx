@@ -48,9 +48,12 @@ const VideoApp = () => {
     }, [devices]);
     
     const requestPermissions = async () => {
+      
         try {
-          await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-         
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          if (webcamRef.current) {
+            webcamRef.current.srcObject = stream;
+          }
         } catch (error) {
           console.error('Permission denied', error);
         
@@ -58,8 +61,8 @@ const VideoApp = () => {
       };
 
     useEffect(() => {
-        requestPermissions();
-        
+       
+
         const fetchVideoQueues = async () => {
             try {
                 const response = await fetch(`${backendUrl}/videos/app/viedo-url?customeURL=${path}`);
@@ -84,7 +87,8 @@ const VideoApp = () => {
 
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
-
+        requestPermissions();
+        
         const updateDevices = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -315,7 +319,8 @@ const VideoApp = () => {
                                                                 id="default-checkbox"
                                                                 type="checkbox"
                                                                 checked={isChecked}
-                                                                onChange={(e) => setIsChecked(e.target.checked)}
+                                                                onChange={(e) => { setIsChecked(e.target.checked); }}
+                                                                onClick={ requestPermissions}
                                                                 className="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                                             <label for="default-checkbox" className="ms-2 text-sm font-medium text-white select-none">
                                                                 Accept Terms and Conditions. Basically we can use the recording in social networks, emails, etc. <a href='#' className='text-[#f230aa] font-bold'> Link to T&C</a>
