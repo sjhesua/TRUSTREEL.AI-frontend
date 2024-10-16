@@ -33,7 +33,7 @@ const VideoApp = () => {
     const [currentVideoIndex2, setCurrentVideoIndex2] = useState(0);
     const videoRefs = useRef([]);
     const [allVideosPlayed, setAllVideosPlayed] = useState(false);
-
+    
     //Filtra los dispositivos de video
     const handleDevices = useCallback((mediaDevices) => {
         setDevices(mediaDevices.filter(({ kind }) => kind === 'videoinput'));
@@ -349,7 +349,7 @@ const VideoApp = () => {
                     ) : (<></>)}
                 </>
             )}
-            <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(allVideosPlayed === true) ? "hidden" : ""}`}>
+            <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
                 <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
 
                     <div className="absolute top-4 left-4 w-[36%] z-10">
