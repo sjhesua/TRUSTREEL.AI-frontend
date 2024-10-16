@@ -352,8 +352,8 @@ const VideoApp = () => {
             <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(allVideosPlayed === true) ? "hidden" : ""}`}>
                 <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
 
-                    <div className="absolute top-4 left-4 w-1/5 aspect-square z-10">
-                        <div className="flex items-center justify-center w-full h-full">
+                    <div className="absolute top-4 left-4 w-[36%] z-10">
+                        <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh]" >
                             {items.map((video, index) => (
                                 <video
                                     key={index}
@@ -366,7 +366,7 @@ const VideoApp = () => {
                                     onPlay={() => {
                                         //videoRefs.current[index].classList.remove('blur-sm');
                                     }}
-                                    className={`max-w-full max-h-full rounded-lg shadow-md ${index === currentVideoIndex ? 'block' : 'hidden'}`}
+                                    className={`max-w-full max-h-full rounded-lg shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'}`}
                                     style={{ ...video.style }}
                                     onLoadedMetadata={() => {
                                         console.log(video);
@@ -377,10 +377,10 @@ const VideoApp = () => {
                     </div>
 
 
-                    <div className="relative w-full rounded-lg overflow-hidden ">
+                    <div className="relative w-full rounded-lg overflow-hidden min-h-screen">
 
                         <Webcam
-                            className="w-full h-full object-cover md:object-contain"
+                            className="w-full h-full object-cover md:object-contain min-h-screen"
                             audio={false}
                             ref={webcamRef}
                             videoConstraints={{
