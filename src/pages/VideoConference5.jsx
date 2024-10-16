@@ -46,9 +46,20 @@ const VideoApp = () => {
             setSelectedDevice(devices[0].deviceId);
         }
     }, [devices]);
+    
+    const requestPermissions = async () => {
+        try {
+          await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+         
+        } catch (error) {
+          console.error('Permission denied', error);
+        
+        }
+      };
 
     useEffect(() => {
-
+        requestPermissions();
+        
         const fetchVideoQueues = async () => {
             try {
                 const response = await fetch(`${backendUrl}/videos/app/viedo-url?customeURL=${path}`);
@@ -69,6 +80,8 @@ const VideoApp = () => {
 
     const [isLoading, setIsLoading] = useState(true);
     //simulacion de carga
+    
+
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
 
@@ -209,7 +222,7 @@ const VideoApp = () => {
                     {(configCameraDone === false && termsAndConditions === true) ? (
                         <>
                             <div className="flex items-center justify-center min-h-screen py-12">
-                                <div className="max-w-lg mx-auto p-6 rounded-lg shadow-md space-y-6 md:max-w-lg">
+                                <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
 
                                     {/*<!-- Row 1: Video/Text Container -->*/}
 
@@ -350,7 +363,7 @@ const VideoApp = () => {
                 </>
             )}
             <div className={`flex items-center justify-center min-h-screen bg-gray-100 ${((termsAndConditions === true && configCameraDone === true) || allVideosPlayed === true) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                <div className="relative w-full max-w-4xl rounded-lg shadow-md">
+                <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
 
                     <div className="absolute top-4 left-4 w-[36%] z-10">
                         <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh]" >
@@ -384,7 +397,7 @@ const VideoApp = () => {
                             audio={false}
                             ref={webcamRef}
                             videoConstraints={{
-                                deviceId: selectedDevice,
+                                deviceId: selectedDevice || { exact: 'user' },
                                 width: { max: 9999 },
                                 height: { max: 9999 },
                                 frameRate: { ideal: 60 },
