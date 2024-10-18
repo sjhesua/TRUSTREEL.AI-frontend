@@ -247,7 +247,7 @@ function VideoApp() {
                     {/*CONFIG CAMERA*/}
                     {(configCameraDone === false && termsAndConditions === true) ? (
                         <div className="flex items-center justify-center min-h-screen  py-12 bg-pepe">
-                            <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md space-y-6 md:max-w-lg">
+                            <div className="max-w-lg mx-auto p-6 rounded-lg shadow-md space-y-6 md:max-w-lg">
                                 {/*<!-- Row 1: Video/Text Container -->*/}
                                 <div className="flex justify-center items-center h-64 w-[22rem] bg-gray-100 rounded-lg overflow-hidden">
                                     <div className="relative w-full h-full">
@@ -337,7 +337,7 @@ function VideoApp() {
             )}
             {/*Lo siguiente es para que comience a cargar los videos desde el principio*/}
             <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-md">
+                <div className="relative w-full max-w-4xl rounded-lg shadow-md">
                     <div className="absolute top-4 left-4 w-[36%] z-10">
                         <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md" >
                             {items.map((video, index) => (
