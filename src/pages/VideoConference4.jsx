@@ -340,6 +340,7 @@ function VideoApp() {
                 <div className="relative w-full max-w-4xl rounded-lg shadow-md">
                     <div className="absolute top-4 left-4 w-[36%] z-10">
                         <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md" >
+                            
                             <video 
                                 src="/videos/loop.mp4"
                                 autoPlay
