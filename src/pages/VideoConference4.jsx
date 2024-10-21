@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
 import { Link, useLocation } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
 import axios from 'axios';
 import Webcam from "react-webcam";
 import Waveform from './Waveform';
@@ -13,6 +12,7 @@ function VideoApp() {
     const videoRefs = useRef([]);
     //camara de conferencia
     const webcamRef = useRef(null);
+    const streamRef = useRef(null);
     //grabacion de video
     const mediaRecorderRef = useRef(null);
     //video de loop
@@ -27,13 +27,12 @@ function VideoApp() {
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [tienePermisosCamara, setTienePermisosCamara] = useState(false);
     //captura de video
+    const [numeroDeVideo, setNumeroDeVideo] = useState(1)
+
     const [capturing, setCapturing] = useState(false);
     const [recordedChunks, setRecordedChunks] = useState([]);
-    const [videoName, setVideoName] = useState("");
     //subir video
     const [videoResponseId, setVideoResponseId] = useState(null);
-    const [videoResponsePartId, setVideoResponsePartId] = useState(null);
-    const [videoResponsePartUrl, setVideoResponsePartUrl] = useState('');
     const [isUploading, setIsUploading] = useState(false);
     //END CAMARA-------------------------------------
     //Microfono
@@ -75,75 +74,92 @@ function VideoApp() {
                 status: false
             });
             setVideoResponseId(response.data.id);
-            return(response.data.id);
+            return (response.data.id);
         } catch (error) {
             console.error('Error creating VideoResponse:', error);
         }
     };
-
-    const createVideoResponsePart = async () => {
-        console.log(videoResponseId)
-        try {
-            const response = await axios.post(`${backendUrl}/videos/create-video-response-part/`, {
-                video: videoResponseId,
-                url: "test",
-                status: false
-            });
-            setVideoResponsePartId(response.data.id);
-            console.log('VideoResponsePart created:', response.data.id);
-        } catch (error) {
-            console.error('Error creating VideoResponse:', error);
-        }
-    };
-
     //Funcion para subida de archivos
     const uploadVideo = async (blob) => {
+        setIsUploading(true);
+        let name = numeroDeVideo
+        const fileName = `${name}.webm`;
+        console.log(`Uploading video... ${fileName}`);
         const formData = new FormData();
-
-        // Generar la fecha y hora actual
-        //const now = new Date();
-        //const formattedDate = now.toISOString().replace(/[:.]/g, '-'); // Formatear la fecha y hora
-
-        // Usar la fecha y hora formateada como el nombre del archivo
-        const fileName = `${videoResponsePartId}.webm`;
-        formData.append('video', blob, fileName); // Cambia 'recording.webm' por el nombre que desees
-        formData.append('videogenerationqueue_id', videoId); // Reemplaza '12345' con el ID real
+        formData.append('video', blob, fileName);
+        formData.append('videogenerationqueue_id', videoId);
         formData.append('videoResponse_id', videoResponseId);
-        
+
         try {
             const response = await fetch(`${backendUrl}/videos/upload-video/`, {
                 method: 'POST',
                 body: formData,
             });
-            
             if (!response.ok) {
                 throw new Error('Failed to upload video');
             }
-
             const result = await response.json();
-            console.log('Video uploaded successfully:', result);
-            
+            console.log(`Video uploaded successfully: ${fileName}`, result);
         } catch (error) {
             console.error('Error uploading video:', error);
         } finally {
-            setIsUploading(false); // Ocultar el spinner y el mensaje
-            if(!respuestFinal){
-                handleCreateVideoResponsePart();    
-            }
+            setIsUploading(false);
         }
     };
 
-    const handleUploadVideo = async () => {
-        if (recordedChunks.length > 0) {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            uploadVideo(blob);
+    //Verifica si esta grabando
+    const handleDataAvailable = useCallback(
+        ({ data }) => {
+            if (data.size > 0) {
+                console.log("Data available:", data);
+                setRecordedChunks((prev) => prev.concat(data));
+            }
+        },
+        [setRecordedChunks]
+    );
+
+    const handleStartCaptureClick = useCallback(() => {
+        if (webcamRef.current && webcamRef.current.stream) {
+            setCapturing(true);
+            mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
+                mimeType: "video/webm"
+            });
+            mediaRecorderRef.current.addEventListener(
+                "dataavailable",
+                handleDataAvailable
+            );
+            mediaRecorderRef.current.start();
+        } else {
+            console.error("La cámara no está lista");
         }
-    }
+    }, [webcamRef, setCapturing, handleDataAvailable]);
+
+    const handleStopCaptureClick = useCallback(() => {
+        mediaRecorderRef.current.stop();
+        setCapturing(false);
+    }, [mediaRecorderRef, webcamRef, setCapturing]);
+
+    const handleDownload = useCallback(() => {
+        if (recordedChunks.length) {
+            setNumeroDeVideo(numeroDeVideo+1)
+            const blob = new Blob(recordedChunks, {
+                type: "video/webm"
+            });
+            uploadVideo(blob);
+            setRecordedChunks([]);
+        }
+    }, [recordedChunks]);
+
     //END FUNCION PARA LA CREACION DEL VIDEO EN EL SERVIDOR
 
     //FUNCION PARA CAMBIAR DE VIDEO
     const handleVideoEnd = () => {
         setCurrentVideoIndex((prevIndex) => (prevIndex + 1 < items.length ? prevIndex + 1 : prevIndex));
+        /*if (!respuestFinal) {
+            //stopAndRestartRecording();
+        } else {
+            stopAndUpload();
+        }*/
     };
     //FUNCION PARA OBTENER LOS DISPOSITIVOS DE VIDEO
     const handleDevices = useCallback((mediaDevices) => {
@@ -214,95 +230,15 @@ function VideoApp() {
     const handleSetConfigCameraDone = () => {
         setConfigCameraDone(true)
         startMic();
-        
+
         SetInicioReproduccion(true);
     }
     //FUNCIONES PARA GRABAR LA CAMARA
-    const attemptMediaRecorder = async () => {
-        for (let i = 0; i < 10; i++) {
-          try {
-            setCapturing(true);
-            const stream = webcamRef.current.stream;
-            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const combinedStream = new MediaStream([...stream.getVideoTracks(), ...audioStream.getAudioTracks()]);
-            mediaRecorderRef.current = new MediaRecorder(combinedStream, {
-              mimeType: "video/webm"
-            });
-            mediaRecorderRef.current.addEventListener(
-              "dataavailable",
-              handleDataAvailable
-            );
-            mediaRecorderRef.current.start();
-            console.log("MediaRecorder started successfully");
-            setIsCameraActive(true);
-            break; // Exit the loop if successful
-          } catch (error) {
-            if (i < 9) { // Wait only if it's not the last attempt
-              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
-            }
-          }
-        }
-      };
-    //FUNCIONPARA EL NOMBRE DEL VIDEO
-    const fetchIPAddress = async () => {
-        try {
-          const response = await fetch('https://api.ipify.org?format=json');
-          const data = await response.json();
-          const ip = data.ip;
-  
-          const currentDate = new Date();
-          const formattedDate = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-  
-          const videoName = `${ip}_${formattedDate}`;
-          setVideoName(videoName);
-        } catch (error) {
-          console.error('Error fetching IP address:', error);
-        }
-      };
 
-    const handleStartCapture = (() => {
-        attemptMediaRecorder();
-      });
-    
-    const handleCreateVideoResponsePart = (() => {
-        createVideoResponsePart();
-    })
-    const handleStopCapture = (() => {
-        mediaRecorderRef.current.stop();
-        setCapturing(false);
-        setRecordedChunks([]);
-      });
 
-    //Verifica si esta grabando
-    const handleDataAvailable = useCallback(
-        ({ data }) => {
-            if (data.size > 0) {
-                setRecordedChunks((prev) => prev.concat(data));
-            }
-        },
-        [setRecordedChunks]
-    );
+
     //Descarga la respuesta
-    const handleDownload = useCallback(() => {
-        if (recordedChunks.length) {
-          const blob = new Blob(recordedChunks, {
-            type: "video/webm"
-          });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          document.body.appendChild(a);
-          a.style = "display: none";
-          a.href = url;
-          a.download = "react-webcam-stream-capture.webm";
-          a.click();
-          window.URL.revokeObjectURL(url);
-          setRecordedChunks([]);
-        }
-      }, [recordedChunks]);
-
     useEffect(() => {
-        fetchIPAddress();
-       
         const baseUrl = "/app/";
         const currentPath = location.pathname;
         if (currentPath.startsWith(baseUrl)) {
@@ -322,16 +258,16 @@ function VideoApp() {
         if (silentSeconds >= 4 && audioStarted) {
             if ((!isPlaying && inicioReproduccion) || (!allVideosPlayed && inicioReproduccion)) {
                 //handleDownload();
-                handleStopCapture();
-                handleUploadVideo();
-                handleStartCapture();
+                //handleStopCaptureClick();
+                //handleDownload();
+                //handleStartCaptureClick();
+
                 playNextVideo();
             }
-            if (allVideosPlayed) {
+            if (allVideosPlayed && respuestFinal === false) {
                 SetRespuestaFinal(true);
-                handleStopCapture();
+
                 //handleDownload();
-                handleUploadVideo();
                 //handleStartCapture();
             }
         }
@@ -342,36 +278,47 @@ function VideoApp() {
     }, [silentSeconds, isPlaying, audioStarted]);
 
     useEffect(() => {
-        if(videoId && !videoResponseId){
+        if (!isPlaying) {
+            try {
+                handleStopCaptureClick();
+                handleDownload();
+                if (!respuestFinal) {
+                    handleStartCaptureClick();
+                }
+            }
+            catch {
+
+            }
+        }
+    }, [isPlaying])
+    
+    useEffect(() => {
+        if (respuestFinal) {
+            handleStopCaptureClick();
+            handleDownload();
+        }
+    },[respuestFinal])
+
+    useEffect(() => {
+        if (videoId && !videoResponseId) {
             createVideoResponse();
         }
     }, [videoId]);
 
     useEffect(() => {
-        if(isCameraActive)
-        {
+        if (isCameraActive) {
             playNextVideo();
         }
-    },[isCameraActive])
-
-    useEffect(()=>{
-        if(videoResponseId && !videoResponsePartId)
-        {
-            createVideoResponsePart();
-        }
-    },[videoResponseId])
-
-    useEffect(()=>{
-        if(respuestFinal)
-        {
-            handleStopCapture();
-        }
-    },[respuestFinal])
+    }, [isCameraActive])
 
     useEffect(() => {
         setAudioStarted(true)
     }, [isSpeaking])
-    
+
+    useEffect(() => {
+        console.log(recordedChunks);
+    }, [recordedChunks])
+
     //ENDMONITOREO DE MICROFONO
     useEffect(() => {
         const fetchVideoQueues = async () => {
@@ -391,6 +338,7 @@ function VideoApp() {
         };
         fetchVideoQueues();
     }, [path]);
+
 
 
     return (
@@ -507,9 +455,9 @@ function VideoApp() {
                                 <div>
                                     {isMobile ? (
                                         <select
-                                            
+
                                             className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200"
-                                            onChange={(e) => setCamaraFrontalTracera(e.target.value)} 
+                                            onChange={(e) => setCamaraFrontalTracera(e.target.value)}
                                             value={camaraFrontalTracera}>
                                             <option value="user">Front Camera</option>
                                             <option value="environment">Rear camera</option>
@@ -533,7 +481,7 @@ function VideoApp() {
                                     <label htmlFor="inputField" className="text-gray-700">Are you ready to join?</label>
                                     <button
                                         disabled={!isCameraOn && !tienePermisosCamara}
-                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo();handleStartCapture(); }}
+                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo(); setTimeout(() => { handleStartCaptureClick(); }, 2000); playNextVideo(); }}
                                         className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-base hover:bg-good">
                                         Join
                                     </button>
@@ -571,8 +519,6 @@ function VideoApp() {
                             className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
 
                         >
-                            <ClipLoader size={10} color={"#123abc"} loading={isUploading} />
-
                             <video
                                 ref={videoLoop}
                                 src="/videos/loop.mp4"
@@ -586,14 +532,15 @@ function VideoApp() {
                                     src={video.url}
                                     onEnded={() => {
                                         handleVideoEnd();
+
                                         //handleStopCapture();
                                     }}
-                                    
+
                                     onPlay={() => {
-                                       //handleStartCapture();
-                                       //setRecordedChunks([]);
+                                        //handleStartCapture();
+                                        //setRecordedChunks([]);
                                     }}
-                                    
+
                                     className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
                                     style={{ ...video.style }}
                                     onLoadedMetadata={() => {
@@ -606,9 +553,10 @@ function VideoApp() {
                     <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
                         {configCameraDone ? (
                             <Webcam
-                            ref={webcamRef}
+                                ref={webcamRef}
                                 className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
-                                audio={false}
+                                audio={true}
+                                muted={true}
                                 videoConstraints={{
                                     facingMode: camaraFrontalTracera,
                                     deviceId: selectedDevice,
