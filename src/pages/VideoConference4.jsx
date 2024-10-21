@@ -481,7 +481,7 @@ function VideoApp() {
                                     <label htmlFor="inputField" className="text-gray-700">Are you ready to join?</label>
                                     <button
                                         disabled={!isCameraOn && !tienePermisosCamara}
-                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo(); setTimeout(() => { handleStartCaptureClick(); }, 2000); playNextVideo(); }}
+                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo(); setTimeout(() => { handleStartCaptureClick(); }, 1000); setTimeout(() => {playNextVideo();}, 1000); }}
                                         className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-base hover:bg-good">
                                         Join
                                     </button>
