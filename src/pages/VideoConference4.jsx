@@ -40,7 +40,7 @@ function VideoApp() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [silentSeconds, setSilentSeconds] = useState(0);
     const [audioStarted, setAudioStarted] = useState(false);
-    const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
+    const [isMicrophoneActive, setIsMicrophoneActive] = useState(true);
     //TERMS AND CONDITIONS
     const [isChecked, setIsChecked] = useState(false);
     //END TERMS AND CONDITIONS
@@ -512,109 +512,111 @@ function VideoApp() {
                 </>
             )}
             {/*Lo siguiente es para que comience a cargar los videos desde el principio*/}
-            <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                <div className="relative w-full max-w-4xl rounded-lg shadow-md">
-                    <div className="absolute top-4 left-4 w-[36%] z-10">
-                        <div
-                            className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
-
-                        >
-                            <video
-                                ref={videoLoop}
-                                src="/videos/loop.mp4"
-                                autoPlay
-                                loop
-                                className={`max-w-full max-h-full shadow-md min-w-[100vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
-                            {items.map((video, index) => (
-                                <video
-                                    key={index}
-                                    ref={(el) => (videoRefs.current[index] = el)}
-                                    src={video.url}
-                                    onEnded={() => {
-                                        handleVideoEnd();
-
-                                        //handleStopCapture();
-                                    }}
-
-                                    onPlay={() => {
-                                        //handleStartCapture();
-                                        //setRecordedChunks([]);
-                                    }}
-
-                                    className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
-                                    style={{ ...video.style }}
-                                    onLoadedMetadata={() => {
-                                        console.log(video);
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                    <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
-                        {configCameraDone ? (
-                            <Webcam
-                                ref={webcamRef}
-                                className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
-                                audio={true}
-                                muted={true}
-                                videoConstraints={{
-                                    facingMode: camaraFrontalTracera,
-                                    deviceId: selectedDevice,
-                                    width: { max: 9999 },
-                                    height: { max: 9999 },
-                                    frameRate: { ideal: 60 },
-                                }}
-                            />) :
-                            (<></>)}
-                        <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
-                            <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
-                            <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
-                                <button
-                                    className={`mr-2 ${isMicrophoneActive ? 'bg-danger h-10 w-10' : 'bg-good  w-10 h-10'} text-white p-3 shadow-lg rounded-md flex items-center justify-center`}
-                                    onClick={toggleMicrophone}
-                                >
-                                    {isMicrophoneActive ? (
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-                                        </svg>
-                                    ) : (
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-                                        </svg>
-                                    )}
-                                </button>
-                                <div>
-                                    <Waveform
-                                        ref={waveformRef}
-                                        isSpeaking={isSpeaking}
-                                        setIsSpeaking={setIsSpeaking}
-                                        silentSeconds={silentSeconds}
-                                        setSilentSeconds={setSilentSeconds}
-                                        audioStarted={audioStarted}
-                                        setAudioStarted={setAudioStarted}
-                                    />
-                                    <button
-                                        className='text-white relative w-40 h-10 rounded-md'
-                                        style={{
-                                            background: `linear-gradient(to right, rgb(68, 142, 254) ${silentSeconds * 25}%, transparent 0%)`
-                                        }}
-                                    >
-                                        {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="col-span-1 flex items-center justify-end">
-                                <a
-                                    href="/"
-                                    className='flex items-center justify-center text-white relative w-40 h-10 rounded-md bg-danger'
-                                >
-                                    Leave Meet
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {respuestFinal === true?(<></>):(
+                 <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
+                 <div className="relative w-full max-w-4xl rounded-lg shadow-md">
+                     <div className="absolute top-4 left-4 w-[36%] z-10">
+                         <div
+                             className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
+ 
+                         >
+                             <video
+                                 ref={videoLoop}
+                                 src="/videos/loop.mp4"
+                                 autoPlay
+                                 loop
+                                 className={`max-w-full max-h-full shadow-md min-w-[100vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
+                             {items.map((video, index) => (
+                                 <video
+                                     key={index}
+                                     ref={(el) => (videoRefs.current[index] = el)}
+                                     src={video.url}
+                                     onEnded={() => {
+                                         handleVideoEnd();
+ 
+                                         //handleStopCapture();
+                                     }}
+ 
+                                     onPlay={() => {
+                                         //handleStartCapture();
+                                         //setRecordedChunks([]);
+                                     }}
+ 
+                                     className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
+                                     style={{ ...video.style }}
+                                     onLoadedMetadata={() => {
+                                         console.log(video);
+                                     }}
+                                 />
+                             ))}
+                         </div>
+                     </div>
+                     <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
+                         {configCameraDone ? (
+                             <Webcam
+                                 ref={webcamRef}
+                                 className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
+                                 audio={true}
+                                 muted={true}
+                                 videoConstraints={{
+                                     facingMode: camaraFrontalTracera,
+                                     deviceId: selectedDevice,
+                                     width: { max: 9999 },
+                                     height: { max: 9999 },
+                                     frameRate: { ideal: 60 },
+                                 }}
+                             />) :
+                             (<></>)}
+                         <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
+                             <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
+                             <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
+                                 <button
+                                     className={`mr-2 ${isMicrophoneActive ? 'bg-danger h-10 w-10' : 'bg-good  w-10 h-10'} text-white p-3 shadow-lg rounded-md flex items-center justify-center`}
+                                     onClick={toggleMicrophone}
+                                 >
+                                     {isMicrophoneActive ? (
+                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                             <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                                         </svg>
+                                     ) : (
+                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                             <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                                         </svg>
+                                     )}
+                                 </button>
+                                 <div>
+                                     <Waveform
+                                         ref={waveformRef}
+                                         isSpeaking={isSpeaking}
+                                         setIsSpeaking={setIsSpeaking}
+                                         silentSeconds={silentSeconds}
+                                         setSilentSeconds={setSilentSeconds}
+                                         audioStarted={audioStarted}
+                                         setAudioStarted={setAudioStarted}
+                                     />
+                                     <button
+                                         className='text-white relative w-40 h-10 rounded-md'
+                                         style={{
+                                             background: `linear-gradient(to right, rgb(68, 142, 254) ${silentSeconds * 25}%, transparent 0%)`
+                                         }}
+                                     >
+                                         {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
+                                     </button>
+                                 </div>
+                             </div>
+                             <div className="col-span-1 flex items-center justify-end">
+                                 <a
+                                     href="/"
+                                     className='flex items-center justify-center text-white relative w-40 h-10 rounded-md bg-danger'
+                                 >
+                                     Leave Meet
+                                 </a>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+            )}
         </div >
     );
 }
