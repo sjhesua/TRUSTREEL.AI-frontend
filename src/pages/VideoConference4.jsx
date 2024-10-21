@@ -1,21 +1,40 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { AiFillVideoCamera, AiOutlineVideoCamera, AiFillAudio, AiOutlineAudio } from 'react-icons/ai';
 import { Link, useLocation } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
+import axios from 'axios';
 import Webcam from "react-webcam";
 import Waveform from './Waveform';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function VideoApp() {
+    //videos del backend
     const videoRefs = useRef([]);
+    //camara de conferencia
+    const webcamRef = useRef(null);
+    //grabacion de video
+    const mediaRecorderRef = useRef(null);
+    //video de loop
+    const videoLoop = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCameraActive, setIsCameraActive] = useState(false);
     //CAMARA-----------------------------------------
     const [camaraFrontalTracera, setCamaraFrontalTracera] = useState("user");
     const [devices, setDevices] = useState([]);
-    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [selectedDevice, setSelectedDevice] = useState(0);
     const [isMobile, setIsMobile] = useState(false);
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [tienePermisosCamara, setTienePermisosCamara] = useState(false);
+    //captura de video
+    const [capturing, setCapturing] = useState(false);
+    const [recordedChunks, setRecordedChunks] = useState([]);
+    const [videoName, setVideoName] = useState("");
+    //subir video
+    const [videoResponseId, setVideoResponseId] = useState(null);
+    const [videoResponsePartId, setVideoResponsePartId] = useState(null);
+    const [videoResponsePartUrl, setVideoResponsePartUrl] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
     //END CAMARA-------------------------------------
     //Microfono
     const waveformRef = useRef(null);
@@ -46,6 +65,82 @@ function VideoApp() {
     const location = useLocation();
     const [items, setItems] = useState([]);
     const [videoId, setVideoId] = useState(null)
+    //FUNCION PARA LA CREACION DEL VIDEO EN EL SERVIDOR
+
+    const createVideoResponse = async () => {
+        try {
+            const response = await axios.post(`${backendUrl}/videos/create-video-response/`, {
+                video: videoId,  // Reemplaza con el ID del VideoGenerationQueue correspondiente
+                url: 'http://example.com/video.mp4',
+                status: false
+            });
+            setVideoResponseId(response.data.id);
+            return(response.data.id);
+        } catch (error) {
+            console.error('Error creating VideoResponse:', error);
+        }
+    };
+
+    const createVideoResponsePart = async () => {
+        console.log(videoResponseId)
+        try {
+            const response = await axios.post(`${backendUrl}/videos/create-video-response-part/`, {
+                video: videoResponseId,
+                url: "test",
+                status: false
+            });
+            setVideoResponsePartId(response.data.id);
+            console.log('VideoResponsePart created:', response.data.id);
+        } catch (error) {
+            console.error('Error creating VideoResponse:', error);
+        }
+    };
+
+    //Funcion para subida de archivos
+    const uploadVideo = async (blob) => {
+        const formData = new FormData();
+
+        // Generar la fecha y hora actual
+        //const now = new Date();
+        //const formattedDate = now.toISOString().replace(/[:.]/g, '-'); // Formatear la fecha y hora
+
+        // Usar la fecha y hora formateada como el nombre del archivo
+        const fileName = `${videoResponsePartId}.webm`;
+        formData.append('video', blob, fileName); // Cambia 'recording.webm' por el nombre que desees
+        formData.append('videogenerationqueue_id', videoId); // Reemplaza '12345' con el ID real
+        formData.append('videoResponse_id', videoResponseId);
+        
+        try {
+            const response = await fetch(`${backendUrl}/videos/upload-video/`, {
+                method: 'POST',
+                body: formData,
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to upload video');
+            }
+
+            const result = await response.json();
+            console.log('Video uploaded successfully:', result);
+            
+        } catch (error) {
+            console.error('Error uploading video:', error);
+        } finally {
+            setIsUploading(false); // Ocultar el spinner y el mensaje
+            if(!respuestFinal){
+                handleCreateVideoResponsePart();    
+            }
+        }
+    };
+
+    const handleUploadVideo = async () => {
+        if (recordedChunks.length > 0) {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            uploadVideo(blob);
+        }
+    }
+    //END FUNCION PARA LA CREACION DEL VIDEO EN EL SERVIDOR
+
     //FUNCION PARA CAMBIAR DE VIDEO
     const handleVideoEnd = () => {
         setCurrentVideoIndex((prevIndex) => (prevIndex + 1 < items.length ? prevIndex + 1 : prevIndex));
@@ -65,8 +160,17 @@ function VideoApp() {
         //si los permisos estan permitidos, esto se utilizara para mostrar el loading
         if (permissionStatus.state === 'granted') {
             setTienePermisosCamara(true);
+            //se coloca que ya se aceptaron los terminos y condiciones si ya tiene permisos de la camara
+            setTermsAndConditions(true);
         }
     };
+    //FUNCION PARA INICIAR EL VIDEO DE LOOP
+    const handlePlayVideo = () => {
+        if (videoLoop.current) {
+            videoLoop.current.play();
+        }
+    };
+
     //FUNCION PARA INICIAR EL MICROFONO
     const toggleMicrophone = () => {
         if (waveformRef.current) {
@@ -88,6 +192,7 @@ function VideoApp() {
             return;
         }
         setIsPlaying(true);
+        //handleStartCapture();
         const currentVideo = videoRefs.current[currentVideoIndex2];
         currentVideo.play();
         setAudioStarted(false)
@@ -109,11 +214,95 @@ function VideoApp() {
     const handleSetConfigCameraDone = () => {
         setConfigCameraDone(true)
         startMic();
-        playNextVideo();
+        
         SetInicioReproduccion(true);
     }
+    //FUNCIONES PARA GRABAR LA CAMARA
+    const attemptMediaRecorder = async () => {
+        for (let i = 0; i < 10; i++) {
+          try {
+            setCapturing(true);
+            const stream = webcamRef.current.stream;
+            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const combinedStream = new MediaStream([...stream.getVideoTracks(), ...audioStream.getAudioTracks()]);
+            mediaRecorderRef.current = new MediaRecorder(combinedStream, {
+              mimeType: "video/webm"
+            });
+            mediaRecorderRef.current.addEventListener(
+              "dataavailable",
+              handleDataAvailable
+            );
+            mediaRecorderRef.current.start();
+            console.log("MediaRecorder started successfully");
+            setIsCameraActive(true);
+            break; // Exit the loop if successful
+          } catch (error) {
+            if (i < 9) { // Wait only if it's not the last attempt
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+            }
+          }
+        }
+      };
+    //FUNCIONPARA EL NOMBRE DEL VIDEO
+    const fetchIPAddress = async () => {
+        try {
+          const response = await fetch('https://api.ipify.org?format=json');
+          const data = await response.json();
+          const ip = data.ip;
+  
+          const currentDate = new Date();
+          const formattedDate = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+          const videoName = `${ip}_${formattedDate}`;
+          setVideoName(videoName);
+        } catch (error) {
+          console.error('Error fetching IP address:', error);
+        }
+      };
+
+    const handleStartCapture = (() => {
+        attemptMediaRecorder();
+      });
+    
+    const handleCreateVideoResponsePart = (() => {
+        createVideoResponsePart();
+    })
+    const handleStopCapture = (() => {
+        mediaRecorderRef.current.stop();
+        setCapturing(false);
+        setRecordedChunks([]);
+      });
+
+    //Verifica si esta grabando
+    const handleDataAvailable = useCallback(
+        ({ data }) => {
+            if (data.size > 0) {
+                setRecordedChunks((prev) => prev.concat(data));
+            }
+        },
+        [setRecordedChunks]
+    );
+    //Descarga la respuesta
+    const handleDownload = useCallback(() => {
+        if (recordedChunks.length) {
+          const blob = new Blob(recordedChunks, {
+            type: "video/webm"
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          document.body.appendChild(a);
+          a.style = "display: none";
+          a.href = url;
+          a.download = "react-webcam-stream-capture.webm";
+          a.click();
+          window.URL.revokeObjectURL(url);
+          setRecordedChunks([]);
+        }
+      }, [recordedChunks]);
 
     useEffect(() => {
+        fetchIPAddress();
+       
         const baseUrl = "/app/";
         const currentPath = location.pathname;
         if (currentPath.startsWith(baseUrl)) {
@@ -132,10 +321,18 @@ function VideoApp() {
     useEffect(() => {
         if (silentSeconds >= 4 && audioStarted) {
             if ((!isPlaying && inicioReproduccion) || (!allVideosPlayed && inicioReproduccion)) {
+                //handleDownload();
+                handleStopCapture();
+                handleUploadVideo();
+                handleStartCapture();
                 playNextVideo();
             }
             if (allVideosPlayed) {
                 SetRespuestaFinal(true);
+                handleStopCapture();
+                //handleDownload();
+                handleUploadVideo();
+                //handleStartCapture();
             }
         }
         if (isPlaying) {
@@ -145,8 +342,36 @@ function VideoApp() {
     }, [silentSeconds, isPlaying, audioStarted]);
 
     useEffect(() => {
+        if(videoId && !videoResponseId){
+            createVideoResponse();
+        }
+    }, [videoId]);
+
+    useEffect(() => {
+        if(isCameraActive)
+        {
+            playNextVideo();
+        }
+    },[isCameraActive])
+
+    useEffect(()=>{
+        if(videoResponseId && !videoResponsePartId)
+        {
+            createVideoResponsePart();
+        }
+    },[videoResponseId])
+
+    useEffect(()=>{
+        if(respuestFinal)
+        {
+            handleStopCapture();
+        }
+    },[respuestFinal])
+
+    useEffect(() => {
         setAudioStarted(true)
     }, [isSpeaking])
+    
     //ENDMONITOREO DE MICROFONO
     useEffect(() => {
         const fetchVideoQueues = async () => {
@@ -166,6 +391,8 @@ function VideoApp() {
         };
         fetchVideoQueues();
     }, [path]);
+
+
     return (
         <div className="bg-fondo">
             {isLoading ? (
@@ -219,7 +446,7 @@ function VideoApp() {
                                                                 checked={isChecked}
                                                                 onChange={(e) => { setIsChecked(e.target.checked); }}
                                                                 className="w-4 h-4 text-[#f230aa] bg-gray-100 border-gray-300 rounded focus:ring-[#f230aa] dark:focus:ring-[#f230aa] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                            <label for="default-checkbox" className="ms-2 text-sm font-medium text-white select-none">
+                                                            <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-white select-none">
                                                                 Accept Terms and Conditions. Basically we can use the recording in social networks, emails, etc. <a href='#' className='text-[#f230aa] font-bold'> Link to T&C</a>
                                                             </label>
                                                         </div>
@@ -280,8 +507,10 @@ function VideoApp() {
                                 <div>
                                     {isMobile ? (
                                         <select
+                                            
                                             className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200"
-                                            onChange={(e) => setCamaraFrontalTracera(e.target.value)} value={camaraFrontalTracera}>
+                                            onChange={(e) => setCamaraFrontalTracera(e.target.value)} 
+                                            value={camaraFrontalTracera}>
                                             <option value="user">Front Camera</option>
                                             <option value="environment">Rear camera</option>
                                         </select>
@@ -301,10 +530,10 @@ function VideoApp() {
                                 </div>
                                 {/*<!-- Row 4: Label and Button -->*/}
                                 <div className="flex justify-between items-center">
-                                    <label for="inputField" className="text-gray-700">Are you ready to join?</label>
+                                    <label htmlFor="inputField" className="text-gray-700">Are you ready to join?</label>
                                     <button
                                         disabled={!isCameraOn && !tienePermisosCamara}
-                                        onClick={handleSetConfigCameraDone}
+                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo();handleStartCapture(); }}
                                         className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-base hover:bg-good">
                                         Join
                                     </button>
@@ -323,8 +552,7 @@ function VideoApp() {
                                     </p>
                                     <a
                                         href="/"
-                                        className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto   ${isChecked ? 'hover-grow btnx' : 'bg-gray-400 cursor-not-allowed btnxd '
-                                            }`}
+                                        className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto hover-grow btnx`}
                                     >
                                         Goodbye!
                                     </a>
@@ -339,9 +567,14 @@ function VideoApp() {
             <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
                 <div className="relative w-full max-w-4xl rounded-lg shadow-md">
                     <div className="absolute top-4 left-4 w-[36%] z-10">
-                        <div className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md" >
-                            
-                            <video 
+                        <div
+                            className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
+
+                        >
+                            <ClipLoader size={10} color={"#123abc"} loading={isUploading} />
+
+                            <video
+                                ref={videoLoop}
                                 src="/videos/loop.mp4"
                                 autoPlay
                                 loop
@@ -353,11 +586,14 @@ function VideoApp() {
                                     src={video.url}
                                     onEnded={() => {
                                         handleVideoEnd();
-                                        //videoRefs.current[index].classList.add('blur-sm');
+                                        //handleStopCapture();
                                     }}
+                                    
                                     onPlay={() => {
-                                        //videoRefs.current[index].classList.remove('blur-sm');
+                                       //handleStartCapture();
+                                       //setRecordedChunks([]);
                                     }}
+                                    
                                     className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
                                     style={{ ...video.style }}
                                     onLoadedMetadata={() => {
@@ -367,10 +603,11 @@ function VideoApp() {
                             ))}
                         </div>
                     </div>
-                    <div className="relative w-full rounded-lg overflow-hidden min-h-screen lg:min-h-0">
+                    <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
                         {configCameraDone ? (
                             <Webcam
-                                className="w-full h-full object-cover md:object-contain min-h-screen lg:min-h-0"
+                            ref={webcamRef}
+                                className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
                                 audio={false}
                                 videoConstraints={{
                                     facingMode: camaraFrontalTracera,
@@ -390,11 +627,11 @@ function VideoApp() {
                                 >
                                     {isMicrophoneActive ? (
                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M15 9.4V5C15 3.34315 13.6569 2 12 2C10.8224 2 9.80325 2.67852 9.3122 3.66593M12 19V22M8 22H16M3 3L21 21M5.00043 10C5.00043 10 3.50062 19 12.0401 19C14.51 19 16.1333 18.2471 17.1933 17.1768M19.0317 13C19.2365 11.3477 19 10 19 10M12 15C10.3431 15 9 13.6569 9 12V9L14.1226 14.12C13.5796 14.6637 12.8291 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     ) : (
                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#ffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     )}
                                 </button>
