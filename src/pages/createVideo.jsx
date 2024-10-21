@@ -19,9 +19,9 @@ const CreateVideo = () => {
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState('https://trustreelai-backend-production.up.railway.app/media/images/replica/image1.png');
-    const [selectedTitle, setSelectedTitle] = useState('Jimmy - Conference Room Video');
-    const [selectedCode, setSelectedCode] = useState('rae3207700');
+    const [selectedImage, setSelectedImage] = useState('https://trustreelai-backend-production.up.railway.app/media/images/replica/image4_vH7rmUI.png');
+    const [selectedTitle, setSelectedTitle] = useState('Steve - Conference Room Video');
+    const [selectedCode, setSelectedCode] = useState('r4249d7154');
 
     const [selectedCardIndex, setSelectedCardIndex] = useState(null);
     const [isCreatingConversation, setIsCreatingConversation] = useState('video');
@@ -97,11 +97,15 @@ const CreateVideo = () => {
                                                 {images.map((image, index) => (
                                                     <div
                                                         key={index}
-                                                        onClick={() => handleCardClick(`${backendUrl}${image.image}`, image.replicaName, image.code, index)}
-                                                        className={`border bg-card text-card-foreground shadow-sm group rounded-md outline-primary hover:shadow cursor-pointer ${selectedCardIndex === index ? 'border-4 border-pink-500' : ''}`}
+                                                        onClick={() => {
+                                                            if (image.style !== "grayscale(100%)") {
+                                                                handleCardClick(`${backendUrl}${image.image}`, image.replicaName, image.code, index);
+                                                            }
+                                                        }}
+                                                        className={`border bg-card text-card-foreground shadow-sm group rounded-md outline-primary hover:shadow  ${selectedCardIndex === index ? 'border-4 border-pink-500' : ''}  ${image.style === "grayscale(100%)" ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                                                     >
                                                         <div className='p-2.5 pb-4'>
-                                                            <img src={`${backendUrl}${image.image}`} alt="Gimy" className="h-full w-full object-cover mb-2" />
+                                                            <img src={`${backendUrl}${image.image}`} alt="Gimy" className="h-full w-full object-cover mb-2" style={{filter:image.style}}/>
                                                         </div>
                                                         <div className='p-6 pt-0 flex flex-col content-start items-start px-2.5 pb-4'>
                                                             <span>{image.replicaName}</span>
@@ -186,14 +190,15 @@ const CreateVideo = () => {
                                 </label>
                                 <select
                                     id="combobox"
-                                    value={selectedOption}
+                                    value={"Voice to Response"}
                                     onChange={handleSelectChange}
                                     className="block w-full p-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Choose an option</option>
+                                >   
                                     <option value="Voice to Response">Voice to Response </option>
+                                    {/*<option value="">Choose an option</option>
+                                    
                                     <option value="Click to Response">Click to Response</option>
-                                    <option value="Create Conversation">Create Conversation</option>
+                                    <option value="Create Conversation">Create Conversation</option>*/}
                                 </select>
 
                                 {/* Mostrando la opción seleccionada */}
