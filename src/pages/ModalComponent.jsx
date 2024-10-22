@@ -39,9 +39,8 @@ const VideoModal = ({ video, onClose, customeUrl, videoName, data }) => {
                     </a>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div key={"qr"} className="border p-4 rounded-lg">
+                    <div key={"qr"} className="border p-4 rounded-lg flex justify-center items-center">
                         <QRCodeCanvas
-                        key={"qr"}
                         onClick={handleShare} 
                         value={`${frontendUrl}/app/${customeUrl}`} 
                         size={256} 
