@@ -135,7 +135,10 @@ function VideoApp() {
     }, [webcamRef, setCapturing, handleDataAvailable]);
 
     const handleStopCaptureClick = useCallback(() => {
-        mediaRecorderRef.current.stop();
+        try {
+            mediaRecorderRef.current.stop();
+        }
+        catch{}
         setCapturing(false);
     }, [mediaRecorderRef, webcamRef, setCapturing]);
 

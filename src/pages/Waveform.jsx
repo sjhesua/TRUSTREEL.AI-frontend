@@ -63,6 +63,7 @@ const Waveform = forwardRef(({ silentSeconds, setSilentSeconds, isSpeaking, setI
 
     const draw = () => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const canvasCtx = canvas.getContext('2d');
         const analyser = analyserRef.current;
         const dataArray = dataArrayRef.current;
