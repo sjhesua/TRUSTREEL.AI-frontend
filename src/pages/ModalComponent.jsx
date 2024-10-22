@@ -8,13 +8,26 @@ const frontendUrl = process.env.REACT_APP_FRONTEND_URL
     return url.replace(`:${oldPort}`, `:${newPort}`);
 };*/
 
-const VideoModal = ({ video, onClose,customeUrl,videoName, data }) => {
+const VideoModal = ({ video, onClose, customeUrl, videoName, data }) => {
     const [items, setItems] = useState([]);
     //const updatedBackendUrl = replacePort(backendUrl, 8000, "");
     useEffect(() => {
         console.log(data)
         setItems(data);
     }, [data]);
+    const handleShare = () => {
+        if (navigator.share) {
+          navigator.share({
+            title: 'Compartir QR',
+            text: 'Mira este enlace:',
+            url: `${frontendUrl}/app/${customeUrl}`,
+          })
+          .then(() => console.log('Compartido exitosamente'))
+          .catch((error) => console.error('Error al compartir', error));
+        } else {
+          alert('La API de Web Share no está soportada en este navegador.');
+        }
+      };
 
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center overflow-auto">
@@ -27,8 +40,13 @@ const VideoModal = ({ video, onClose,customeUrl,videoName, data }) => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div key={"qr"} className="border p-4 rounded-lg">
-                            <QRCodeCanvas value={`${frontendUrl}/app/${customeUrl}`} size={256} className="w-full"/>
-                        </div>
+                        <QRCodeCanvas
+                        key={"qr"}
+                        onClick={handleShare} 
+                        value={`${frontendUrl}/app/${customeUrl}`} 
+                        size={256} 
+                        className="w-full" />
+                    </div>
                     {items.map(item => (
                         <div key={item.id} className="border p-4 rounded-lg">
                             <p className="overflow-hidden truncate whitespace-nowrap">{item.videoText}</p>

@@ -141,7 +141,7 @@ function VideoApp() {
 
     const handleDownload = useCallback(() => {
         if (recordedChunks.length) {
-            setNumeroDeVideo(numeroDeVideo+1)
+            setNumeroDeVideo(numeroDeVideo + 1)
             const blob = new Blob(recordedChunks, {
                 type: "video/webm"
             });
@@ -291,13 +291,13 @@ function VideoApp() {
             }
         }
     }, [isPlaying])
-    
+
     useEffect(() => {
         if (respuestFinal) {
             handleStopCaptureClick();
             handleDownload();
         }
-    },[respuestFinal])
+    }, [respuestFinal])
 
     useEffect(() => {
         if (videoId && !videoResponseId) {
@@ -480,9 +480,9 @@ function VideoApp() {
                                 <div className="flex justify-between items-center">
                                     <label htmlFor="inputField" className="text-gray-700">Are you ready to join?</label>
                                     <button
-                                        disabled={!isCameraOn && !tienePermisosCamara}
-                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo(); setTimeout(() => { handleStartCaptureClick(); }, 1000); setTimeout(() => {playNextVideo();}, 1000); }}
-                                        className="ml-4 py-2 px-4 text-white font-semibold rounded-lg bg-base hover:bg-good">
+                                        disabled={!isCameraOn || !isMicrophoneActive}
+                                        onClick={() => { handleSetConfigCameraDone(); handlePlayVideo(); setTimeout(() => { handleStartCaptureClick(); }, 1000); setTimeout(() => { playNextVideo(); }, 1000); }}
+                                        className={`ml-4 py-2 px-4 text-white font-semibold rounded-lg ${!isCameraOn || !isMicrophoneActive ? 'bg-disabled cursor-not-allowed' : 'bg-base hover:bg-good'}`}>
                                         Join
                                     </button>
                                 </div>
@@ -512,64 +512,65 @@ function VideoApp() {
                 </>
             )}
             {/*Lo siguiente es para que comience a cargar los videos desde el principio*/}
-            {respuestFinal === true?(<></>):(
-                 <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                 <div className="relative w-full max-w-4xl rounded-lg shadow-md">
-                     <div className="absolute top-4 left-4 w-[36%] z-10">
-                         <div
-                             className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
- 
-                         >
-                             <video
-                                 ref={videoLoop}
-                                 src="/videos/loop.mp4"
-                                 autoPlay
-                                 loop
-                                 className={`max-w-full max-h-full shadow-md min-w-[100vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
-                             {items.map((video, index) => (
-                                 <video
-                                     key={index}
-                                     ref={(el) => (videoRefs.current[index] = el)}
-                                     src={video.url}
-                                     onEnded={() => {
-                                         handleVideoEnd();
- 
-                                         //handleStopCapture();
-                                     }}
- 
-                                     onPlay={() => {
-                                         //handleStartCapture();
-                                         //setRecordedChunks([]);
-                                     }}
- 
-                                     className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
-                                     style={{ ...video.style }}
-                                     onLoadedMetadata={() => {
-                                         console.log(video);
-                                     }}
-                                 />
-                             ))}
-                         </div>
-                     </div>
-                     <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
-                         {configCameraDone ? (
-                             <Webcam
-                                 ref={webcamRef}
-                                 className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
-                                 audio={true}
-                                 muted={true}
-                                 videoConstraints={{
-                                     facingMode: camaraFrontalTracera,
-                                     deviceId: selectedDevice,
-                                     width: { max: 9999 },
-                                     height: { max: 9999 },
-                                     frameRate: { ideal: 60 },
-                                 }}
-                             />) :
-                             (<></>)}
-                         <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
-                             <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
-                             <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
+            {respuestFinal === true ? (<></>) : (
+                <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
+                    <div className="relative w-full max-w-4xl rounded-lg shadow-md">
+                        <div className="absolute top-4 left-4 w-[36%] z-10">
+                            <div
+                                className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
+
+                            >
+                                <video
+                                    ref={videoLoop}
+                                    src="/videos/loop.mp4"
+                                    autoPlay
+                                    loop
+                                    className={`max-w-full max-h-full shadow-md min-w-[100vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
+                                {items.map((video, index) => (
+                                    <video
+                                        key={index}
+                                        ref={(el) => (videoRefs.current[index] = el)}
+                                        src={video.url}
+                                        onEnded={() => {
+                                            handleVideoEnd();
+
+                                            //handleStopCapture();
+                                        }}
+
+                                        onPlay={() => {
+                                            //handleStartCapture();
+                                            //setRecordedChunks([]);
+                                        }}
+
+                                        className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
+                                        style={{ ...video.style }}
+                                        onLoadedMetadata={() => {
+                                            console.log(video);
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
+                            {configCameraDone ? (
+                                <Webcam
+                                    ref={webcamRef}
+                                    className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
+                                    audio={true}
+                                    muted={true}
+                                    videoConstraints={{
+                                        facingMode: camaraFrontalTracera,
+                                        deviceId: selectedDevice,
+                                        width: { max: 9999 },
+                                        height: { max: 9999 },
+                                        frameRate: { ideal: 60 },
+                                    }}
+                                />) :
+                                (<></>)}
+                            <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
+                                <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
+                                <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
+                                    {/*
                                  <button
                                      className={`mr-2 ${isMicrophoneActive ? 'bg-danger h-10 w-10' : 'bg-good  w-10 h-10'} text-white p-3 shadow-lg rounded-md flex items-center justify-center`}
                                      onClick={toggleMicrophone}
@@ -584,38 +585,41 @@ function VideoApp() {
                                          </svg>
                                      )}
                                  </button>
-                                 <div>
-                                     <Waveform
-                                         ref={waveformRef}
-                                         isSpeaking={isSpeaking}
-                                         setIsSpeaking={setIsSpeaking}
-                                         silentSeconds={silentSeconds}
-                                         setSilentSeconds={setSilentSeconds}
-                                         audioStarted={audioStarted}
-                                         setAudioStarted={setAudioStarted}
-                                     />
-                                     <button
-                                         className='text-white relative w-40 h-10 rounded-md'
-                                         style={{
-                                             background: `linear-gradient(to right, rgb(68, 142, 254) ${silentSeconds * 25}%, transparent 0%)`
-                                         }}
-                                     >
-                                         {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
-                                     </button>
-                                 </div>
-                             </div>
-                             <div className="col-span-1 flex items-center justify-end">
-                                 <a
-                                     href="/"
-                                     className='flex items-center justify-center text-white relative w-40 h-10 rounded-md bg-danger'
-                                 >
-                                     Leave Meet
-                                 </a>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
+                                    */}
+                                    <div>
+                                        <Waveform
+                                            ref={waveformRef}
+                                            isSpeaking={isSpeaking}
+                                            setIsSpeaking={setIsSpeaking}
+                                            silentSeconds={silentSeconds}
+                                            setSilentSeconds={setSilentSeconds}
+                                            audioStarted={audioStarted}
+                                            setAudioStarted={setAudioStarted}
+                                        />
+                                        <button
+                                            className='text-white relative w-40 h-10 rounded-md'
+                                            style={{
+                                                background: `linear-gradient(to right, rgb(68, 142, 254) ${silentSeconds * 25}%, transparent 0%)`
+                                            }}
+                                        >
+                                            {silentSeconds >= 4 ? 'Respuesta enviada' : 'Repondiendo'}
+                                        </button>
+                                    </div>
+                                </div>
+                                {/*
+                                <div className="col-span-1 flex items-center justify-end">
+                                    <a
+                                        href="/"
+                                        className='flex items-center justify-center text-white relative w-40 h-10 rounded-md bg-danger'
+                                    >
+                                        Leave Meet
+                                    </a>
+                                </div>
+                                */}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div >
     );
