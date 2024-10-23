@@ -115,6 +115,7 @@ function VideoApp() {
           left: touch.pageX - rel.x,
         });
         e.stopPropagation();
+        e.preventDefault();
       };
     //FUNCION PARA LA CREACION DEL VIDEO EN EL SERVIDOR
 
