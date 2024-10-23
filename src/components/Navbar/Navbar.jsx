@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex-shrink-0">
           <a href="#" className="text-xl font-bold text-primary-50">
-            TRUSTTREEL.AI
+            TRUSTREEL.AI
           </a>
         </div>
         <div className="hidden md:flex space-x-4 items-baseline">
