@@ -41,6 +41,10 @@ function VideoApp() {
     const [silentSeconds, setSilentSeconds] = useState(0);
     const [audioStarted, setAudioStarted] = useState(false);
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(true);
+    //DRAG VIDEO
+    const [position, setPosition] = useState({ top: 4, left: 4 });
+    const [dragging, setDragging] = useState(false);
+    const [rel, setRel] = useState({ x: 0, y: 0 });
     //TERMS AND CONDITIONS
     const [isChecked, setIsChecked] = useState(false);
     //END TERMS AND CONDITIONS
@@ -64,6 +68,54 @@ function VideoApp() {
     const location = useLocation();
     const [items, setItems] = useState([]);
     const [videoId, setVideoId] = useState(null)
+    //
+    const onMouseDown = (e) => {
+        setRel({
+          x: e.pageX - position.left,
+          y: e.pageY - position.top,
+        });
+        setDragging(true);
+        e.stopPropagation();
+        e.preventDefault();
+      };
+      
+      const onMouseMove = (e) => {
+        if (!dragging) return;
+        setPosition({
+          top: e.pageY - rel.y,
+          left: e.pageX - rel.x,
+        });
+        e.stopPropagation();
+        e.preventDefault();
+      };
+      
+      const onMouseUp = () => {
+        setDragging(false);
+      };
+
+      const onTouchStart = (e) => {
+        const touch = e.targetTouches[0];
+        setRel({
+          x: touch.pageX - position.left,
+          y: touch.pageY - position.top,
+        });
+        setDragging(true);
+        e.stopPropagation();
+      };
+      
+      const onTouchEnd = () => {
+        setDragging(false);
+      };
+      
+      const onTouchMove = (e) => {
+        if (!dragging) return;
+        const touch = e.targetTouches[0];
+        setPosition({
+          top: touch.pageY - rel.y,
+          left: touch.pageX - rel.x,
+        });
+        e.stopPropagation();
+      };
     //FUNCION PARA LA CREACION DEL VIDEO EN EL SERVIDOR
 
     const createVideoResponse = async () => {
@@ -441,6 +493,8 @@ function VideoApp() {
                                         {isCameraOn ? (
                                             <Webcam
                                                 className={`absolute inset-0 w-full h-full object-cover`}
+                                                audio={true}
+                                                muted={true}
                                                 videoConstraints={{
                                                     width: 1280,
                                                     height: 720,
@@ -527,17 +581,22 @@ function VideoApp() {
             {respuestFinal === true ? (<></>) : (
                 <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
                     <div className="relative w-full max-w-4xl rounded-lg shadow-md">
-                        <div className="absolute top-4 left-4 w-[36%] z-10">
-                            <div
-                                className="flex items-center justify-center w-full h-full overflow-hidden pt-[28vh] min-w-[30vh] max-h-[20vh] rounded-md"
-
-                            >
+                        <div className="absolute top-4 left-4 w-[30%] z-10 overflow-hidden flex items-baseline justify-center min-w-[15vh] max-h-[15vh]"
+                        style={{ top: `${position.top}px`, left: `${position.left}px` }}
+                        onMouseDown={onMouseDown}
+                        onMouseUp={onMouseUp}
+                        onMouseMove={onMouseMove}
+                        onTouchStart={onTouchStart}
+                        onTouchEnd={onTouchEnd}
+                        onTouchMove={onTouchMove}
+                        >
+                            <div>
                                 <video
                                     ref={videoLoop}
                                     src="/videos/loop.mp4"
                                     autoPlay
                                     loop
-                                    className={`max-w-full max-h-full shadow-md min-w-[100vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
+                                    className={`max-w-full max-h-full shadow-md min-w-[50vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
                                 {items.map((video, index) => (
                                     <video
                                         key={index}
@@ -554,7 +613,7 @@ function VideoApp() {
                                             //setRecordedChunks([]);
                                         }}
 
-                                        className={`max-w-full max-h-full shadow-md min-w-[100vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
+                                        className={`max-w-full max-h-full shadow-md min-w-[50vh] ${index === currentVideoIndex ? 'block' : 'hidden'} ${isPlaying === true ? 'block' : 'hidden'}`}
                                         style={{ ...video.style }}
                                         onLoadedMetadata={() => {
                                             console.log(video);
