@@ -158,11 +158,6 @@ function VideoApp() {
     //FUNCION PARA CAMBIAR DE VIDEO
     const handleVideoEnd = () => {
         setCurrentVideoIndex((prevIndex) => (prevIndex + 1 < items.length ? prevIndex + 1 : prevIndex));
-        /*if (!respuestFinal) {
-            //stopAndRestartRecording();
-        } else {
-            stopAndUpload();
-        }*/
     };
     //FUNCION PARA OBTENER LOS DISPOSITIVOS DE VIDEO
     const handleDevices = useCallback((mediaDevices) => {
@@ -248,7 +243,9 @@ function VideoApp() {
             const extractedPath = currentPath.slice(baseUrl.length);
             setPath(extractedPath);
         }
+        //si es video
         setIsMobile(window.innerWidth <= 768);
+
         navigator.mediaDevices.enumerateDevices().then(handleDevices);
         checkCameraPermissions();
         const timer = setTimeout(() => {
@@ -258,20 +255,15 @@ function VideoApp() {
     }, []);
     //MONITOREO DE MICROFONO
     useEffect(() => {
+        //si el silencio dura 4 segundos
         if (silentSeconds >= 4 && audioStarted) {
+            // si no se esta reproduciento el video y no se ha enviado la respuesta final
             if ((!isPlaying && inicioReproduccion) || (!allVideosPlayed && inicioReproduccion)) {
-                //handleDownload();
-                //handleStopCaptureClick();
-                //handleDownload();
-                //handleStartCaptureClick();
-
                 playNextVideo();
             }
+            //si se ha reproducido todos los videos y no se ha enviado la respuesta final
             if (allVideosPlayed && respuestFinal === false) {
                 SetRespuestaFinal(true);
-
-                //handleDownload();
-                //handleStartCapture();
             }
         }
         if (isPlaying) {
@@ -294,6 +286,23 @@ function VideoApp() {
             }
         }
     }, [isPlaying])
+    //FUNCION PARA OBTENER LOS DISPOSITIVOS DE VIDEO
+    useEffect(() => {
+        const getCameras = async () => {
+            try {
+              const devices = await navigator.mediaDevices.enumerateDevices();
+              const cameras = devices.filter(device => device.kind === 'videoinput');
+              if (cameras.length > 0) {
+                selectedDevice(cameras[0].deviceId); // Establece el ID de la primera cámara encontrada
+              }
+            } catch (error) {
+              console.error('Error al obtener dispositivos de medios:', error);
+            }
+          };
+        if (!isMobile) {
+            getCameras();
+        }
+    },[isMobile])
 
     useEffect(() => {
         if (respuestFinal) {
