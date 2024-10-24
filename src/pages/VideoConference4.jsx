@@ -597,12 +597,14 @@ function VideoApp() {
                                     src="/videos/loop.mp4"
                                     autoPlay
                                     loop
+                                    playsInline
                                     className={`max-w-full max-h-full shadow-md min-w-[50vh] ${isPlaying === false ? 'block' : 'hidden'}`}></video>
                                 {items.map((video, index) => (
                                     <video
                                         key={index}
                                         ref={(el) => (videoRefs.current[index] = el)}
                                         src={video.url}
+                                        playsInline
                                         onEnded={() => {
                                             handleVideoEnd();
 
