@@ -581,8 +581,8 @@ function VideoApp() {
             {/*Lo siguiente es para que comience a cargar los videos desde el principio*/}
             {respuestFinal === true ? (<></>) : (
                 <div className={`flex items-center justify-center min-h-screen bg-fondo ${((termsAndConditions === true && configCameraDone === true)) ? "" : "hidden"} ${(respuestFinal === true) ? "hidden" : ""}`}>
-                    <div className="relative w-full max-w-4xl rounded-lg shadow-md">
-                        <div className="absolute top-4 left-4 w-[30%] z-10 overflow-hidden flex items-baseline justify-center min-w-[15vh] max-h-[15vh]"
+                    <div className="relative w-full max-w-4xl rounded-lg shadow-md flex flex-col sm:p-0 p-8 items-center">
+                        <div className="top-4 left-4 w-[30%] z-10 overflow-hidden flex items-baseline justify-center min-w-[15vh] max-h-[15vh] mb-4 rounded-full sm:absolute sm:mb-0 sm:rounded-none"
                         style={{ top: `${position.top}px`, left: `${position.left}px` }}
                         onMouseDown={onMouseDown}
                         onMouseUp={onMouseUp}
@@ -623,11 +623,11 @@ function VideoApp() {
                                 ))}
                             </div>
                         </div>
-                        <div className="relative w-full rounded-lg overflow-hidden min-h-[90vh] lg:min-h-0">
+                        <div className="relative w-full rounded-lg overflow-hidden lg:min-h-0">
                             {configCameraDone ? (
                                 <Webcam
                                     ref={webcamRef}
-                                    className="w-full h-full object-cover md:object-contain min-h-[90vh] lg:min-h-0"
+                                    className="w-full h-full object-cover md:object-contain min-h-[65vh]"
                                     audio={true}
                                     muted={true}
                                     videoConstraints={{
@@ -639,7 +639,7 @@ function VideoApp() {
                                     }}
                                 />) :
                                 (<></>)}
-                            <div className="w-full py-[1rem] bg-fondo flex grid grid-cols-3">
+                            <div className="w-full py-[1rem] bg-fondo sm:grid sm:grid-cols-3 flex items-center justify-center">
                                 <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
                                 <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
                                     {/*
