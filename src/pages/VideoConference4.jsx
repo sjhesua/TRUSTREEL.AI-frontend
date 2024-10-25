@@ -614,7 +614,7 @@ function VideoApp() {
                                             //handleStartCapture();
                                             //setRecordedChunks([]);
                                         }}
-
+                                        //XXXXX
                                         className={`max-w-full max-h-full shadow-md min-w-[50vh] ${index === currentVideoIndex ? 'block' : 'hidden'}`}
                                         style={{ ...video.style }}
                                         onLoadedMetadata={() => {
