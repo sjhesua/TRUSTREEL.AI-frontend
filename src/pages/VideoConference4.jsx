@@ -607,7 +607,6 @@ function VideoApp() {
                                         playsInline
                                         onEnded={() => {
                                             handleVideoEnd();
-
                                             //handleStopCapture();
                                         }}
 
@@ -616,7 +615,7 @@ function VideoApp() {
                                             //setRecordedChunks([]);
                                         }}
 
-                                        className={`max-w-full max-h-full shadow-md min-w-[50vh]`}
+                                        className={`max-w-full max-h-full shadow-md min-w-[50vh] ${index === currentVideoIndex ? 'block' : 'hidden'}`}
                                         style={{ ...video.style }}
                                         onLoadedMetadata={() => {
                                             console.log(video);
@@ -644,7 +643,7 @@ function VideoApp() {
                             <div className="w-full py-[1rem] bg-fondo sm:grid sm:grid-cols-3 flex items-center justify-center">
                                 <div className="hidden sm:flex  items-center justify-center col-span-1"></div>
                                 <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
-                                    {/*
+                                    
                                  <button
                                      className={`mr-2 ${isMicrophoneActive ? 'bg-danger h-10 w-10' : 'bg-good  w-10 h-10'} text-white p-3 shadow-lg rounded-md flex items-center justify-center`}
                                      onClick={toggleMicrophone}
@@ -659,7 +658,7 @@ function VideoApp() {
                                          </svg>
                                      )}
                                  </button>
-                                    */}
+                                   
                                     <div>
                                         <Waveform
                                             ref={waveformRef}
